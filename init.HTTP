@@ -1,0 +1,33 @@
+@Server 		= http://127.0.0.1:3000
+# @Server 		= http://46.101.220.73:3000
+@contentType 	= application/json
+@token			= {{login.response.headers.token}}
+
+### Health
+POST {{Server}}/health
+
+### Login
+# @name login
+POST {{Server}}/users/login
+Content-Type: 	{{contentType}}
+
+{
+	"username": "hamed",
+	"password": "123"
+}
+### get-myInfo
+POST {{Server}}/users/get-myinfo
+Content-Type: 	{{contentType}}
+token: 			{{token}}
+
+{
+
+}
+### users list
+POST {{Server}}/users/list
+Content-Type: 	{{contentType}}
+token: 			{{token}}
+
+{
+
+}
