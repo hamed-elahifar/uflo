@@ -176,6 +176,9 @@ router.post('/reset-password',[auth,sysAdmin],async(req,res,next)=>{
 
   return next();
 });
+
+
+
 router.get ('/google',
     passport.authenticate('google',{scope:['email','profile']}
 ))
@@ -184,5 +187,8 @@ router.get ('/google/callback',
         successRedirect:'/google/success',
         failureRedirect:'/google/failure'
 }))
+
+router.get('/google/success',(req,res)=>{res.send('/google/success')})
+router.get('/google/failure',(req,res)=>{res.send('/google/failure')})
 
 module.exports = router;

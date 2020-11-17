@@ -31,11 +31,11 @@ var options = {
                             ExtractJwt.fromBodyField('token'),
     ]),
     secretOrKey:            getConfig('jwt.token'),
-    issuer:                 'accounts.examplesoft.com',
-    audience:               'yoursite.net',
-    algorithms:             ['RS256'],
-    ignoreExpiration:       false,
-    passReqToCallback:      false,
+    // issuer:                 'accounts.examplesoft.com',
+    // audience:               'yoursite.net',
+    // algorithms:             ['RS256'],
+    // ignoreExpiration:       false,
+    // passReqToCallback:      false,
     jsonWebTokenOptions:{
 
         complete:           false,
@@ -78,9 +78,9 @@ passport.use(new GoogleStrategy({
         console.log('profile',profile)
         console.log()
 
-        User.findOrCreate({ googleId: profile.id }, (err, user) => {
-            return done(err, user);
-        });
+        // User.findOrCreate({ googleId: profile.id }, (err, user) => {
+            return done(null, user);
+        // });
     }
 ));
 
