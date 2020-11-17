@@ -1,3 +1,5 @@
+const { request } = require('express');
+
 const router            = require('express').Router()
   ,   {User}            = require('../models/users')
 
@@ -6,6 +8,7 @@ const router            = require('express').Router()
 
   ,  {sysAdmin}         = require('../middleware/sysRoles')
   ,   auth              = require('../middleware/auth')
+  ,  {passport}         = require('../services/passport')
 
 router.post('/sign-up',async(req,res,next)=>{
   const schema  = Joi.object({
@@ -176,7 +179,6 @@ router.post('/reset-password',[auth,sysAdmin],async(req,res,next)=>{
 
   return next();
 });
-
 
 
 router.get ('/google',
