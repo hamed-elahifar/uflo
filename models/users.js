@@ -5,19 +5,20 @@ const bcrypt            = require('bcryptjs')
 const {v4:uuidv4}       = require('uuid');
 
 const userSchema = new mongoose.Schema({
+
     userID:{
         type:           String,
         default:        uuidv4(),
     },
-    username:{
-        trim:           true,
-        type:           String,
-        maxlength:      30,
-        unique:         true,
-        index:          true,
-        lowercase:      true,
-        required:       true,
-    },
+    // username:{
+    //     trim:           true,
+    //     type:           String,
+    //     maxlength:      30,
+    //     unique:         true,
+    //     index:          true,
+    //     lowercase:      true,
+    //     required:       true,
+    // },
     firstname:{
         trim:           true,
         type:           String,
@@ -60,9 +61,6 @@ const userSchema = new mongoose.Schema({
     birthDate:{
         type:           String,
     },
-    address:{
-        type:           String,
-    },
     incorrectPassCount:{
         type:           Number,
         maxlength:      1,
@@ -79,10 +77,9 @@ const userSchema = new mongoose.Schema({
 },{timestamps:          true,
    // toObject:         {virtuals:true},
    toJSON:              {virtuals:true},
-//    shardkey:            {partition:1}
 });
 
-userSchema.index({username:1,email:1},{unique:true,background:true});
+userSchema.index({userID:1,email:1},{unique:true,background:true});
 
 // hash password
 userSchema.pre('save',async function (next){

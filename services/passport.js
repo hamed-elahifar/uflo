@@ -1,12 +1,10 @@
-const passport          = require('passport')
+const passport          = require('passport');
 const LocalStrategy     = require('passport-local').Strategy
 
 const JwtStrategy       = require('passport-jwt').Strategy
 const ExtractJwt        = require('passport-jwt').ExtractJwt
 const GoogleStrategy    = require( 'passport-google-oauth2' ).Strategy;
-
-
-const {User}        = require('../models/users')
+const {User}            = require('../models/users')
 
 passport.use(new LocalStrategy(
     function(username, password, done) {
@@ -69,18 +67,32 @@ passport.use(new GoogleStrategy({
         passReqToCallback:  true
     },
     function(request, accessToken, refreshToken, profile, done) {
-        console.log('request',request)
-        console.log()
-        console.log('accessToken',accessToken)
-        console.log()
-        console.log('refreshToken',refreshToken)
-        console.log()
-        console.log('profile',profile)
-        console.log()
 
-        // User.findOrCreate({ googleId: profile.id }, (err, user) => {
-            return done(null, user);
-        // });
+        let info = {
+
+            userID:         profile._json.sub,
+            firstname:      profile._json.given_name,
+            lastname:       profile._json.family_name,
+            picture:        profile._json.picture,
+            email:          profile._json.email,
+
+            accessToken:    accessToken,
+        }
+
+        console.log(info);
+
+        User.updateOne({userID:profile.id},{
+            $set:info
+        },{upsert:true})
+        .then(()=>{
+            return done(null,{accessToken,refreshToken,profile});
+        })
+        .catch(ex => {
+            errorLog(ex)
+            return done(ex,false)
+        })
+
+
     }
 ));
 
