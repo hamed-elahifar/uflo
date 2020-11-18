@@ -85,7 +85,7 @@ passport.use(new GoogleStrategy({
             $set:info
         },{upsert:true})
         .then(()=>{
-            return done(null,{accessToken,refreshToken,profile});
+            return done(null,profile._json);
         })
         .catch(ex => {
             errorLog(ex)
