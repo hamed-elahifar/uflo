@@ -81,13 +81,11 @@ passport.use(new GoogleStrategy({
 
         console.log(info);
 
-        User.updateOne({userID:profile.id},{
-            $set:info
-        },{upsert:true})
-        .then(()=>{
-            return done(null,profile._json);
-        })
-        .catch(ex => {
+        User.updateOne({userID:profile.id},{$set:info},{upsert:true})
+
+        .then(user => {done(null,user)})
+
+        .catch(ex =>  {
             errorLog(ex)
             return done(ex,false)
         })

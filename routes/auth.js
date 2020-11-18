@@ -1,5 +1,3 @@
-const { request } = require('express');
-
 const router            = require('express').Router()
   ,   {User}            = require('../models/users')
 
@@ -186,12 +184,24 @@ router.get ('/google',
 ))
 router.get ('/google/callback',
     passport.authenticate('google',{
-        successRedirect:'/auth/google/success',
-        failureRedirect:'/auth/google/failure',
+        // successRedirect:'/auth/google/success',
+        // failureRedirect:'/auth/google/failure',
         session: false
-}))
+    },
+    (req,res,next) => {
+        // User.findOne({id:})
+        res.payload = req.user
+        console.log('REQ.user',req.user)
+        return next();
+    }
+))
 
 router.get('/google/success',(req,res)=>{res.send('/google/success')})
 router.get('/google/failure',(req,res)=>{res.send('/google/failure')})
+
+router.get('/test',passport.authenticate('google',{session:false}),(req,res,next)=>{
+    res.payload = req.user;
+    return next();
+})
 
 module.exports = router;
