@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
 
     userID:{
         type:           String,
-        default:        uuidv4(),
+        // default:        uuidv4(),
     },
     // username:{
     //     trim:           true,
@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema({
     },
     password:{
         type:           String,
-        required:       true,
+        // required:       true,
         // minlength:   3,
         // maxlength:   1024,
         select:         false
@@ -61,18 +61,59 @@ const userSchema = new mongoose.Schema({
     birthDate:{
         type:           String,
     },
-    incorrectPassCount:{
-        type:           Number,
-        maxlength:      1,
-        default:        0,
-    },
+    // incorrectPassCount:{
+    //     type:           Number,
+    //     maxlength:      1,
+    //     default:        0,
+    // },
     lastLoginDate:{
         type:           Date,
     },
-    changePasswordDate:{
-        type:           Date,
-    },
+    // changePasswordDate:{
+    //     type:           Date,
+    // },
     university:         String,
+    classLevel:{
+        type:           String,
+        enum:           ['Freshman','Sophomore','Junior','Senior']
+    },
+    major:              String,
+    academicPerformance:{
+        CurrentAcademicPerformance:{
+            type:       String,
+            enum:       ['Excellent','Good','Average','Below Average']
+        },
+        DesiredAcademicPerformance:{
+            type:       String,
+            enum:       ['Excellent','Good','Average','Below Average']
+
+        },
+    },
+    examTakingPerformance:{
+        ExamType:{
+            type:       String,
+            enum:       ['Analytical','Memorization']
+        },
+        QuestionType:{
+            type:       String,
+            enum:       ['Multiple Choice','Free Response']
+        },
+    },
+    learningHabits:{
+        ProcrastinationLevel:{
+            type:       String,
+            enum:       ['High','Medium','Low']
+        },
+        LearningType:{
+            type:       [String],
+            enum:       ['Visual','Verbal/Auditory','Kinesthetic','Reading/Writing']
+        },
+    },
+    theme:{
+        type:           String,
+        enum:           ['Dark','Light']
+    }
+    
 
 },{timestamps:          true,
    // toObject:         {virtuals:true},
@@ -85,6 +126,7 @@ userSchema.index({userID:1,email:1},{unique:true,background:true});
 userSchema.pre('save',async function (next){
     if (this.isModified('password')){
         try{
+
             const salt    = await bcrypt.genSalt(10);
             this.password = await bcrypt.hash(this.password,salt);
 
@@ -120,10 +162,11 @@ userSchema.post('init', function(doc) {
     //     this.enabled = false
 });
 
-userSchema.methods.generateAuthToken = () => {
+userSchema.methods.generateAuthToken = function () {
+    // this should not be an arrow function => ()
     return sign({ 
             userID:         this.userID,
-            username:       this.username,
+            email:          this.email,
             firstname:      this.firstname,
             lastname:       this.lastname,
             role:           this.role,

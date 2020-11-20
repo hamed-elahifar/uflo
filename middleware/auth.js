@@ -1,19 +1,25 @@
-const jwt           = require('jsonwebtoken')
-const {passport}    = require('../services/passport')
+const jwt       = require('jsonwebtoken')
 
 module.exports  = async function (req, res, next) {
 
-    return passport.authenticate('jwt',{session:false});
-
-    // let token = req.header('token') ? req.header('token') :   
-    //             req.body.token      ? req.body.token      : null
-
-    // if (!token) return next({status:401,msg:'Access Denied, No Token Provided'});
+    const ip = req.ip.substr(0, 7) == "::ffff:" ? req.ip.substr(7) : req.ip
     
-    // try {req.userinfo = jwt.verify(token, getConfig('jwt.token'))}
-    // catch (ex) {return next({status:401,msg:'invalid token'})}
+    // if user came from cookie-session
+    if (req.user) {
+        req.user.ip  = ip
+        req.userinfo = req.user
+        return next();
+    }
+   
+    let token = req.header('token') ? req.header('token') :   
+                req.body.token      ? req.body.token      : null
 
-    // req.userinfo.ip = req.ip.substr(0, 7) == "::ffff:" ? req.ip.substr(7) : req.ip
+    if (!token) return next({status:401,msg:'Access Denied, No Token Provided'});
+    
+    try {req.userinfo = jwt.verify(token, getConfig('jwt.token'))}
+    catch (ex) {return next({status:401,msg:'invalid token'})}
 
-    // return next();
+    req.userinfo.ip = ip
+
+    return next();
 };

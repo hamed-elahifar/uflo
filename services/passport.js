@@ -59,14 +59,13 @@ passport.use(new JwtStrategy(options,(jwt_payload,done) => {
     });
 }));
 
-
 passport.use(new GoogleStrategy({
         clientID:           getConfig('google.clientID'),
         clientSecret:       getConfig('google.clientSecret'),
         callbackURL:        getConfig('google.callbackURL'),
-        passReqToCallback:  true
+        passReqToCallback:  true,
     },
-    function(request, accessToken, refreshToken, profile, done) {
+    async (request, accessToken, refreshToken, profile, done) => {
 
         let info = {
 
@@ -79,19 +78,26 @@ passport.use(new GoogleStrategy({
             accessToken:    accessToken,
         }
 
-        console.log(info);
+        const user = await User.findOne({userID:profile.id}).lean()
 
-        User.updateOne({userID:profile.id},{$set:info},{upsert:true})
-
-        .then(user => {done(null,user)})
-
-        .catch(ex =>  {
-            errorLog(ex)
-            return done(ex,false)
-        })
-
-
+        if (!user) {
+            new User(info).save().then(user => {
+                return done(null,user.userID);
+            }).catch(console.log);
+        } else {
+            return done(null,profile.id);
+        }
     }
 ));
+
+passport.serializeUser((googleUserID,done) => {
+    return done(null,googleUserID);
+});
+  
+passport.deserializeUser(async (googleUserID,done) => {
+    User.findOne({userID:googleUserID})
+        .then (user => done(null,user))
+        .catch(ex   => done(ex)) 
+});
 
 module.exports = {passport}

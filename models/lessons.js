@@ -2,6 +2,10 @@ const mongoose     = require('mongoose')
 const {mongoDB}    = require('../startup/mongodb')
 
 const lessonSchema = new mongoose.Schema({
+    name:{
+        type:           String,
+        required:       true
+    },
     title:{
         type:           String,
         required:       true
@@ -11,28 +15,33 @@ const lessonSchema = new mongoose.Schema({
         required:       true,
         ref:            'courses'
     },
-    chapter:            String,
-    lesson:{
-        type:           Number,
+    chapterID:{
+        type:           String,
+        required:       true,
+        ref:            'chapters'
     },
-    frame:[{
-        number:         Number,
-        content:        String,
-    }],
-    version:{
-        type:         String,
-        enum:         ['A','B','C','D'],
-        required:     false
-    }
-},{timestamps:          true,
-        // toObject:         {virtuals:true},
-        toJSON:              {virtuals:true},
+    order:{
+        type:           Number,
+        min:            0
+    },
+    startDate:          Date,
+
+},{
+    timestamps:          true,
+    // toObject:         {virtuals:true},
+    toJSON:              {virtuals:true},
 });
 
-courseSchema.virtual('course',{
+lessonSchema.virtual('course',{
     ref:             'courses',
     localField:      'courseID',
     foreignField:    'courseID',
+    justOne:          true,
+});
+lessonSchema.virtual('chapter',{
+    ref:             'chapters',
+    localField:      'chapterID',
+    foreignField:    'chapterID',
     justOne:          true,
 });
 

@@ -69,9 +69,18 @@ Array.prototype.isEmpty = function() {return !!this.length}
 
 global.errorLog = (msg,err) => {
 
+    // console.log('msg',msg)
+    // console.log('err',err)
+
     if (!msg && !err) return
 
-    if (typeof msg == 'string') logger.error(msg)
+    if (typeof msg == 'string') {
+        logger.error(msg)
+
+        logger.debug(new Error().stack)
+
+        return;
+    }
 
     if (msg instanceof Error) {
         msg.message ? logger.error(msg.message) : logger.error(msg)
@@ -83,22 +92,14 @@ global.errorLog = (msg,err) => {
         err.stack   ? logger.debug(err.stack)   : null
     }
     
-    if (msg instanceof Object && !msg instanceof Error) logger.error(JSON.stringify(msg,null,2))
-    if (err instanceof Object && !err instanceof Error) logger.error(JSON.stringify(err,null,2))
-    
-    else {
-
-        console.log('this line should not be executed!')
-        // if (msg) console.log('MSG::',msg)
-        // if (err) console.log('ERR::',err)
-        
-        // console.trace();
-
-        // console.log('.')
-        // console.log('investigate more ...')
-        // console.log('.')
-
+    if ((msg instanceof Object) && !(msg instanceof Error)) {
+        logger.error(JSON.stringify(msg,null,2))
     }
+    if ((err instanceof Object) && !(err instanceof Error)) {
+        
+        logger.error(JSON.stringify(err,null,2))
+    }
+
 }
 
 process.on('SIGTERM', ()=>{console.log('SIGTERM received');process.exit();});

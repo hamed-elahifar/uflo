@@ -4,58 +4,12 @@ const router                    = require('express').Router()
 //   ,   {mongoDB}                 = require('../startup/mongodb')
 
 //   ,  {sendEmail}                = require('../services/email')
-  ,   bcrypt                    = require('bcryptjs')
   ,   Joi                       = require('@hapi/joi')
 
   ,  {sysAdmin}                 = require('../middleware/sysRoles')
   ,   auth                      = require('../middleware/auth')
 
-router.post('/sign-up',async(req,res,next)=>{
-    const schema  = Joi.object({
-        username:                   Joi.string().alphanum().required().min(3),
-                                        // .regex(/^[a-zA-Z_.]*$/)
-                                        // .messages({'string.pattern.base':'invalid character(s) in username field'}),
 
-        password:                   Joi.string().required(),
-                                    //    .regex(new RegExp(getConfig('passwordComplexity')))
-                                    //    .messages({'string.pattern.base':'password does not meet minimum complexity'}),
-	    firstname:                  Joi.string().allow(null,'').required(),
-	    lastname:                   Joi.string().allow(null,'').required(),
-        email:                      Joi.string().email({
-			                        minDomainSegments:2,
-			                        tlds:{allow:['edu']}
-		})                          .allow(null,'').optional().messages({'':'only .edu email is acceptable'}),
-    })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
-
-    const {username,password,firstname,lastname,email} = req.body
-
-    // find User
-    let user = await User.findOne({email});
-    if (user) return next({status:400,msg:'user already exist'})
-
-    university = email.split('@')[1].split('.')
-    university.pop()
-    university = university.join('.')
-    
-    user = new User({
-        username,password,firstname,lastname,email,
-        university
-    });
-
-    let [err,result] = await tojs(user.save())
-
-    if (err) return errorLog(err)
-
-    result.password = undefined;
-    result._id      = undefined;
-    result.__v      = undefined;
-
-    res.payload = result
-    
-    return next();
-});
 router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
         username:                   Joi.string().required().min(3),
@@ -75,8 +29,8 @@ router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
 
         token:                      Joi.any().allow(null,'').optional(),
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     let {username,password,firstName,lastName,
         mobile,enabled,
@@ -103,60 +57,6 @@ router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
     res.payload = result
     return next();
 });
-router.post('/login',async(req,res,next) => {
-    const schema  = Joi.object({
-        username:   Joi.string().required(),
-        password:   Joi.string().required(),
-    })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
-
-    const {username,password} = req.body
-
-    let user   = await User.findOne({username}).select("+password");
-    if (!user){
-        return next({status:400,msg:'incorrect username or password'});
-    }
-    
-    const validPassword = await user.validatePassword(password)
-    if (!validPassword) {
-        return next({status:400,msg:'incorrect username or password'})
-    }
-
-    if (!user.enabled || !user.active) {
-        return next({status:403,msg:'disabled user account'})
-    }
-
-    if (user.mustChangePassword) {
-        res.payload = {
-            msg:                        'you must change your password',
-            mustChangePassword:         user.mustChangePassword,
-            token:                      '',
-        }
-        return next();
-    }
-
-    user.lastLoginDate      = Date.now();
-    user.incorrectPassCount = 0;
-    user.save().then().catch(err => {errorLog(err)});
-
-    const token = user.generateAuthToken();  
-    res.header('token',token);
-    res.payload = res.payload ? Object.assign(res.payload,{token}) : {token}
-    
-    return next();
-});
-router.post('/logout',[auth],async(req,res,next) => {
-
-    const schema  = Joi.object({
-        token:      Joi.any()   .allow(null,'').optional(),
-    })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
-
-    res.payload = {msg:'logout successful'}
-    return next()
-});
 router.post('/get-userinfo',[auth,sysAdmin],async(req,res,next)=>{
     
     const schema  = Joi.object({
@@ -164,8 +64,8 @@ router.post('/get-userinfo',[auth,sysAdmin],async(req,res,next)=>{
 
         token:          Joi.any().allow(null,'').optional(),
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     let {userID} = req.body
 
@@ -188,99 +88,47 @@ router.post('/get-myinfo',[auth],async(req,res,next)=>{
     
     return next();
 });
-router.post('/change-password',async(req,res,next)=>{
-    const schema  = Joi.object({
-        username:           Joi.string().required(),
-
-        password:           Joi.string().required(),
-        newPassword:        Joi.string().required()
-                               .regex(new RegExp(getConfig('passwordComplexity')))
-                               .messages({'string.pattern.base': 'password does not meet minimum complexity'}),
-
-        token:              Joi.any().allow(null,'').optional(),
-    })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
-
-    const {username,password,newPassword} = req.body
-
-    let  user = await User.findOne({username}).select("+password");
-    if (!user) return next({status:404,msg:'user not found'});
-
-    if (!user.enabled || !user.active) return next({status:403,msg:'disabled user account'});
-
-    const validPassword = await bcrypt.compare(password, user.password);
-    if  (!validPassword) return next({status:400,msg:'password incorrect'})
-
-    // same Password
-    // const samePassword = (oldPassword == newPassword)
-    const samePassword = await bcrypt.compare(newPassword, user.password);
-    if (samePassword) return next({status:400,msg:'new password should not be same as old password'})
-    
-    user.password                     = newPassword;
-
-    user.mustChangePassword = false;
-    user.changePasswordDate = Date.now();
-
-    const [err,result] = await tojs(user.save())
-
-    if (err) return next({msg:'there was an error in operation'})
-
-    res.payload = {msg:'operation successful'}
-
-    return next();
-});
-router.post('/reset-password',[auth,sysAdmin],async(req,res,next)=>{
-    const schema  = Joi.object({
-        userID:         Joi.string().required(),
-        password:       Joi.string().required()
-                           .regex(new RegExp(getConfig('passwordComplexity')))
-                           .messages({'string.pattern.base': 'password does not meet minimum complexity'}),
-        token:          Joi.any().allow(null,'').optional(),
-    })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
-
-    const {userID,password} = req.body;
-
-    const user = await User.findOne({userID})
-    if(!user) return next({status:404,msg:'user not found'});
-
-    user.password           = password
-    user.changePasswordDate = Date.now();
-
-    const [err,result] = await tojs(user.save())
-
-    if (err) return next({msg:'there was an error in operation'})
-
-    res.payload = {msg:'password change successfully'}
-
-    return next();
-});
 router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     
     const schema  = Joi.object({
-	    email:      Joi.string().optional().allow(null,''),
-	    mobile:     Joi.number().optional().allow(null,''),
-        tel:        Joi.number().optional().allow(null,''),
-        address:    Joi.string().optional().allow(null,''),
+        name:               Joi.string().optional().allow(null,''),
+	    university:         Joi.string().required(),
+	    classLevel:         Joi.number().required().valid('Freshman','Sophomore','Junior','Senior'),
+        major:              Joi.number().required(),
 
-        token:Joi.any().allow(null,'').optional(),
+        academicPerformance:            Joi.object().keys({
+            CurrentAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average'),
+            DesiredAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average')
+        }).required(),
+
+        examTakingPerformance:          Joi.object().keys({
+            ExamType:                   Joi.string().required().valid('Analytical','Memorization'),
+            QuestionType:               Joi.string().required().valid('Multiple Choice','Free Response'),
+        }).required(),
+
+        learningHabits:             Joi.object().keys({
+            ProcrastinationLevel:   Joi.string().required().valid('High','Medium','Low'),
+            LearningType:           Joi.string().required().valid('Visual','Verbal/Auditory','Kinesthetic','Reading/Writing'),
+        }).required(),
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {email,mobile,tel,address} = req.body
+    const {name,university,classLevel,major,
+        academicPerformance,examTakingPerformance,learningHabits} = req.body
 
-    let [err,user] = await tojs(User.findOne({userID:req.userinfo.userID}))
+    let [err,user] = await tojs(User.findOne({userID:req.user.userID}))
 
     if (!user) return next({msg:'user not found'})
     if (err)   return next({msg:'there is an error on fetching data from database'})
-    
-    user.email   = email   != undefined ? email   : user.email
-    user.mobile  = mobile  != undefined ? mobile  : user.mobile
-    user.tel     = tel     != undefined ? tel     : user.tel
-    user.address = address != undefined ? address : user.address
+
+    user.name                   = name != undefined ? name    : user.name
+    user.university             = university
+    user.classLevel             = classLevel
+    user.major                  = major
+    user.academicPerformance    = academicPerformance    
+    user.examTakingPerformance  = examTakingPerformance
+    user.learningHabits         = learningHabits
 
     let [Err,result] = await tojs(user.save())
 
@@ -305,8 +153,8 @@ router.post('/edit-userinfo',[auth,sysAdmin],async(req,res,next)=>{
 
         token:                      Joi.any().allow(null,'').optional(),
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     let {userID,firstName,lastName,mobile,tel,active,enabled,
         email,birthDate,isSysAdmin,
@@ -350,8 +198,8 @@ router.post('/list',[auth],async(req,res,next)=>{
         to:         Joi.number() .optional().allow(null,'').positive().integer(),
         token:      Joi.any().allow(null,'').optional(),
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     let {search}    = req.body
     let {from,to}   = req.body
@@ -392,8 +240,8 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
 
         token:      Joi.any().allow(null,'').optional(),
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {userID} = req.body
 

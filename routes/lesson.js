@@ -10,8 +10,8 @@ router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
         
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {} = req.body
 

@@ -24,8 +24,8 @@ router.post('/sign-up',async(req,res,next)=>{
                                   tlds:{allow:['edu']}
       })                          .allow(null,'').optional().messages({'':'only .edu email is acceptable'}),
   })
-  const {error} = schema.validate(req.body,{abortEarly:false});
-  if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+  const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+  if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
   const {username,password,firstname,lastname,email} = req.body
 
@@ -59,8 +59,8 @@ router.post('/login',async(req,res,next) => {
       username:   Joi.string().required(),
       password:   Joi.string().required(),
   })
-  const {error} = schema.validate(req.body,{abortEarly:false});
-  if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+  const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+  if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
   const {username,password} = req.body
 
@@ -102,8 +102,8 @@ router.post('/logout',[auth],async(req,res,next) => {
   const schema  = Joi.object({
       token:      Joi.any()   .allow(null,'').optional(),
   })
-  const {error} = schema.validate(req.body,{abortEarly:false});
-  if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+  const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+  if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
   res.payload = {msg:'logout successful'}
   return next()
@@ -119,8 +119,8 @@ router.post('/change-password',async(req,res,next)=>{
 
       token:              Joi.any().allow(null,'').optional(),
   })
-  const {error} = schema.validate(req.body,{abortEarly:false});
-  if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+  const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+  if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
   const {username,password,newPassword} = req.body
 
@@ -158,8 +158,8 @@ router.post('/reset-password',[auth,sysAdmin],async(req,res,next)=>{
                          .messages({'string.pattern.base': 'password does not meet minimum complexity'}),
       token:          Joi.any().allow(null,'').optional(),
   })
-  const {error} = schema.validate(req.body,{abortEarly:false});
-  if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+  const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+  if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
   const {userID,password} = req.body;
 
@@ -178,29 +178,31 @@ router.post('/reset-password',[auth,sysAdmin],async(req,res,next)=>{
   return next();
 });
 
+router.get ('/google',passport.authenticate('google',{scope:['email','profile']}))
 
-router.get ('/google',
-    passport.authenticate('google',{scope:['email','profile']}
-))
 router.get ('/google/callback',
     passport.authenticate('google',{
-        // successRedirect:'/auth/google/success',
-        // failureRedirect:'/auth/google/failure',
-        session: false
-    },
-    (req,res,next) => {
-        // User.findOne({id:})
-        res.payload = req.user
-        console.log('REQ.user',req.user)
-        return next();
+        successRedirect:'/',
+        failureRedirect:'/',
+        // session: false
     }
 ))
 
-router.get('/google/success',(req,res)=>{res.send('/google/success')})
-router.get('/google/failure',(req,res)=>{res.send('/google/failure')})
+// router.get('/google-auth-test',auth,(req,res,next)=>{
+//     console.log(req.user)
+//     res.payload = req.user
+//     return next();
+// })
 
-router.get('/test',passport.authenticate('google',{session:false}),(req,res,next)=>{
-    res.payload = req.user;
+router.get('/google-jwt',async(req,res,next)=>{
+
+    if (!req.user) return next({status:401,msg:'Unauthorized'});
+
+    const user  = await User.findOne({userID:req.user.userID})
+
+    const token = user.generateAuthToken()
+
+    res.payload = token
     return next();
 })
 

@@ -2,23 +2,34 @@ const mongoose     = require('mongoose')
 const {mongoDB}    = require('../startup/mongodb')
 
 const courseSchema = new mongoose.Schema({
+    
+    // students:
+    // owners
+    
+    // slug
+    // chapters
+    // passcode
+
+
+
     courseID:{
         type:           String,
-        default:        () => {Math.random().toString(35).substr(2,3)},
+        default:        () => Math.random().toString(35).substr(2,6),
     },
-    title:{
+    name:{
         type:           String,
         required:       true
     },
-    univsersity:{
-        type:           String,
-        required:       true
-    },
-    professor:{
+    description:        String,
+    professorID:{
         type:           String,
         ref:            'users',
         required:       true,
     },
+    startDate:          Date,
+    endDate:            Date,
+    syllabus:           String,
+
 },{
     timestamps:         true,
     // toObject:           {virtuals:true},

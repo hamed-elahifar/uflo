@@ -8,6 +8,9 @@ const express                   = require('express')
   ,   cors                      = require('cors')
   ,   JSONValidation            = require('../middleware/JSONValidation')
   ,   {passport}                = require('../services/passport')
+  ,   cookieSession             = require('cookie-session')
+
+
 
 module.exports = function (app) {
 
@@ -26,7 +29,13 @@ module.exports = function (app) {
     app.use(helmet());
     app.use(compression());
 
+    app.use(cookieSession({
+        name: 'uflo',
+        keys: ['key1', 'key2']
+    }))
+
     app.use(passport.initialize());
+    app.use(passport.session());
 
     // const limiter = new rateLimit({
     //   store:  new RedisStore({expiry:10 * 60}),  // 10*60s = 10 min
@@ -38,6 +47,7 @@ module.exports = function (app) {
     // });
 
     app.get('/',(req,res,next)=>{
+        console.log(req.user)
         res.json({status:'ok'})
     })
 
@@ -86,6 +96,10 @@ module.exports = function (app) {
 
     app.use('/auth',        require('../routes/auth'))
     app.use('/users',       require('../routes/users'))
+    app.use('/courses',     require('../routes/course'))
+    // app.use('/users',       require('../routes/users'))
+    // app.use('/users',       require('../routes/users'))
+
     
     app.use('*',            require('../middleware/response'))
     app.use(                require('../middleware/error'))

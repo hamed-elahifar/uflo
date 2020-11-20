@@ -1,9 +1,9 @@
 const router                    = require('express').Router()
-  ,   {Lecture}                  = require('../models/lecture')
+  ,   {Capter}                  = require('../models/chapter')
 
   ,   Joi                       = require('@hapi/joi')
 
-  ,  {sysAdmin}                 = require('../middleware/sysRoles')
+  ,   {sysAdmin}                = require('../middleware/sysRoles')
   ,   auth                      = require('../middleware/auth')
 
 router.post('/list',async(req,res,next)=>{
@@ -14,8 +14,8 @@ router.post('/list',async(req,res,next)=>{
         professor:      Joi.string().optional(),
 
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {title,univsersity,professor} = req.body
 
@@ -43,8 +43,8 @@ router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
         professor:      Joi.string().required(),
 
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {title,univsersity,professor} = req.body
 
@@ -70,8 +70,8 @@ router.post('/update',[auth,sysAdmin],async(req,res,next)=>{
         professor:      Joi.string().optional(),
 
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {courseID,title,univsersity,professor} = req.body
 
@@ -99,8 +99,8 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
         courseID:       Joi.string().required(),
 
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {courseID} = req.body
 
@@ -111,3 +111,5 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
     return next()
 });
 module.exports = router;
+
+

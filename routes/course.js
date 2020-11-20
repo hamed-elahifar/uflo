@@ -7,56 +7,51 @@ const router         = require('express').Router()
   ,  {sysAdmin}      = require('../middleware/sysRoles')
   ,   auth           = require('../middleware/auth')
 
-router.post('/list',async(req,res,next)=>{
+router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
-
-        title:          Joi.string().optional(),
-        univsersity:    Joi.string().optional(),
-        professor:      Joi.string().optional(),
+        token:      Joi.any().allow(null,'').optional(),
         
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,univsersity,professor} = req.body
+    // const {} = req.body
 
-    query = {}
+    const [err,result] = await tojs(Course.find().select('-id -_id -__v'))
 
-    if (title)          query = {...query,title}
-    if (univsersity)    query = {...query,univsersity}
-    if (professor)      query = {...query,professor}
-
-    console.log(query)
-
-    const [err,result] = await tojs(Course.find({}))
-
-    if (err) errorLog(err)
+    if (err) return next({status:500,error:err})
 
     res.payload = result
     
     return next();
 });
-router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
+router.post('/add',[auth],async(req,res,next)=>{
+
     const schema  = Joi.object({
 
-        title:          Joi.string().required(),
-        univsersity:    Joi.string().required(),
-        professor:      Joi.string().required(),
+        name:               Joi.string().required(),
+        description:        Joi.string().required(),
+        professorID:        Joi.string().required(),
+        startDate:          Joi.string().optional().allow(null,''),
+        endDate:            Joi.string().optional().allow(null,''),
+        syllabus:           Joi.string().optional().allow(null,''),
+
+        token:              Joi.any().allow(null,'').optional(),
 
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,univsersity,professor} = req.body
+    const {name,description,professorID,startDate,endDate,syllabus} = req.body
 
-    const prof = await User.find({userID,role:'professor'})
+    const prof = await User.findOne({userID:professorID,role:'professor'})
     if (!prof) return next({msg:'professor not found'})
 
-    const course = new Course({title,univsersity,professor})
+    const course = new Course({name,description,professorID,startDate,endDate,syllabus})
 
-    const [err,result] = await tojs(course.save({}))
+    const [err,result] = await tojs(course.save())
 
-    if (err) errorLog(err)
+    if (err) return next({status:500,error:err})
 
     res.payload = result
 
@@ -71,8 +66,8 @@ router.post('/update',[auth,sysAdmin],async(req,res,next)=>{
         professor:      Joi.string().optional(),
 
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {courseID,title,univsersity,professor} = req.body
 
@@ -100,8 +95,8 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
         courseID:       Joi.string().required(),
 
     })
-    const {error} = schema.validate(req.body,{abortEarly:false});
-    if (error) return next({status:400,msg:error.details.map(x=>x.message)});
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
     const {courseID} = req.body
 
