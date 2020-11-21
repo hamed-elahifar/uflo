@@ -1,4 +1,4 @@
-console.log('Development config loaded...')
+console.log('Production config loaded...')
 
 module.exports = {
     "PORT":                     3000,

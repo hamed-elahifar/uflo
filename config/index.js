@@ -1,6 +1,18 @@
+const fs        = require('fs');
+const {join}    = require('path');
 
-let data = require('./development')
-    _    = require('lodash');
+const path      = join(__dirname,global.environment+'.js')
+
+let data;
+
+if   (fs.existsSync(path)) {
+    data        = require(path)
+}
+else if (fs.existsSync(join(__dirname,'./development.js'))) {
+    data        = require('./development')
+} else {
+    throw Error('config file not found') 
+}
 
 module.exports = getConfig = arg => {
 

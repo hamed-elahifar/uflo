@@ -13,7 +13,6 @@ router.post('/me',[auth],async(req,res,next)=>{
     res.payload = req.user;
     return next();
 })
-
 router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
         username:                   Joi.string().required().min(3),
