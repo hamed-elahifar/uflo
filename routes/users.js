@@ -9,7 +9,7 @@ const router                    = require('express').Router()
   ,  {sysAdmin}                 = require('../middleware/sysRoles')
   ,   auth                      = require('../middleware/auth')
 
-router.post('/me',[auth],async(req,res,next)=>{
+router.all('/me',[auth],async(req,res,next)=>{
     res.payload = req.user;
     return next();
 })

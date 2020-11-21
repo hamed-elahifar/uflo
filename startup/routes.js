@@ -47,7 +47,7 @@ module.exports = function (app) {
     // });
 
     app.get('/',(req,res,next)=>{
-        console.log(req.user)
+        // console.log(req.user)
         res.json({status:'ok'})
     })
 
