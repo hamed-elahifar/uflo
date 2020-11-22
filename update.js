@@ -5,11 +5,11 @@ const {exec} = require('child_process')
 
 const data = {
     web:{
-        dir:        '/root/uflo/static'
+        dir:        '/root/uFlo/static'
     },
     app:{
         pm2name:    'uflo',
-        dir:        '/uflo/VyVy',
+        dir:        '/root/uFlo',
     }
 }
 
