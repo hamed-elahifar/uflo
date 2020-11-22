@@ -1,14 +1,15 @@
+// --------------------- // بسم الله الرحمن الرحيم // --------------------- //
 console.clear();
 const {exec} = require('child_process')
   ,   app    = require('express')()
 
 const data = {
     web:{
-        dir:        '/root/VyVy/static'
+        dir:        '/root/uflo/static'
     },
     app:{
-        pm2name:    'VyVy',
-        dir:        '/root/VyVy',
+        pm2name:    'uflo',
+        dir:        '/uflo/VyVy',
     }
 }
 

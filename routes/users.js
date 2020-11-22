@@ -13,6 +13,69 @@ router.all('/me',[auth],async(req,res,next)=>{
     res.payload = req.user;
     return next();
 })
+router.post('/edit-myinfo',[auth],async(req,res,next)=>{
+    
+    const schema  = Joi.object({
+        name:               Joi.string().optional().allow(null,''),
+	    university:         Joi.string().required(),
+	    classLevel:         Joi.string().required().valid('Freshman','Sophomore','Junior','Senior'),
+        major:              Joi.string().required(),
+        type:               Joi.string().required().valid('student','teacher'),
+
+        academicPerformance:            Joi.object().keys({
+            CurrentAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average'),
+            DesiredAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average')
+        }).when('type', {'is': 'student', then: Joi.object().required(),otherwise: Joi.forbidden()}),
+
+        examTakingPerformance:          Joi.object().keys({
+            ExamType:                   Joi.string().required().valid('Analytical','Memorization'),
+            QuestionType:               Joi.string().required().valid('Multiple Choice','Free Response'),
+        }).when('type', {'is': 'student', then: Joi.object().required(),otherwise: Joi.forbidden()}),
+
+        learningHabits:             Joi.object().keys({
+            ProcrastinationLevel:   Joi.string().required().valid('High','Medium','Low'),
+            LearningType:           Joi.string().required().valid('Visual','Verbal/Auditory','Kinesthetic','Reading/Writing'),
+        }).when('type', {'is': 'student', then: Joi.object().required(),otherwise: Joi.forbidden()}),
+
+        teachingExperience:         Joi.string().valid('below 5 years','below 10 years','below 20 years','more than 20 years')
+                                       .when('type', {'is': 'teacher', then: Joi.string().required(),otherwise: Joi.forbidden()}),
+        enrolledStudent:            Joi.string().valid('less than 20','less than 100','less than 200','more than 200')
+                                       .when('type', {'is': 'teacher', then: Joi.string().required(),otherwise: Joi.forbidden()}),
+        classroom:                  Joi.string()
+                                       .when('type', {'is': 'teacher', then: Joi.string().required(),otherwise: Joi.forbidden()}),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {name,university,classLevel,major,
+        academicPerformance,examTakingPerformance,learningHabits,
+        teachingExperience,enrolledStudent,classroom} = req.body
+
+
+    let [err,user] = await tojs(User.findOne({userID:req.userinfo.userID}))
+
+    if (!user) return next({msg:'user not found'})
+    if (err)   return next({msg:'there is an error on fetching data from database'})
+
+    user.name                   = name != undefined ? name    : user.name
+    user.university             = university
+    user.classLevel             = classLevel
+    user.major                  = major
+    user.academicPerformance    = academicPerformance    
+    user.examTakingPerformance  = examTakingPerformance
+    user.learningHabits         = learningHabits
+    user.teachingExperience     = teachingExperience
+    user.enrolledStudent        = enrolledStudent
+    user.classroom              = classroom
+
+    let [Err,result] = await tojs(user.save())
+
+    res.payload = result;
+
+    return next();
+});
+
 router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
         username:                   Joi.string().required().min(3),
@@ -82,63 +145,7 @@ router.post('/get-userinfo',[auth,sysAdmin],async(req,res,next)=>{
 
     return next();
 });
-router.post('/get-myinfo',[auth],async(req,res,next)=>{
-    let user = await User
-        .findOne({userID:req.userinfo.userID})
-        // .select('')
 
-    res.payload = user
-    
-    return next();
-});
-router.post('/edit-myinfo',[auth],async(req,res,next)=>{
-    
-    const schema  = Joi.object({
-        name:               Joi.string().optional().allow(null,''),
-	    university:         Joi.string().required(),
-	    classLevel:         Joi.number().required().valid('Freshman','Sophomore','Junior','Senior'),
-        major:              Joi.number().required(),
-
-        academicPerformance:            Joi.object().keys({
-            CurrentAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average'),
-            DesiredAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average')
-        }).required(),
-
-        examTakingPerformance:          Joi.object().keys({
-            ExamType:                   Joi.string().required().valid('Analytical','Memorization'),
-            QuestionType:               Joi.string().required().valid('Multiple Choice','Free Response'),
-        }).required(),
-
-        learningHabits:             Joi.object().keys({
-            ProcrastinationLevel:   Joi.string().required().valid('High','Medium','Low'),
-            LearningType:           Joi.string().required().valid('Visual','Verbal/Auditory','Kinesthetic','Reading/Writing'),
-        }).required(),
-    })
-    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
-    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
-
-    const {name,university,classLevel,major,
-        academicPerformance,examTakingPerformance,learningHabits} = req.body
-
-    let [err,user] = await tojs(User.findOne({userID:req.user.userID}))
-
-    if (!user) return next({msg:'user not found'})
-    if (err)   return next({msg:'there is an error on fetching data from database'})
-
-    user.name                   = name != undefined ? name    : user.name
-    user.university             = university
-    user.classLevel             = classLevel
-    user.major                  = major
-    user.academicPerformance    = academicPerformance    
-    user.examTakingPerformance  = examTakingPerformance
-    user.learningHabits         = learningHabits
-
-    let [Err,result] = await tojs(user.save())
-
-    res.payload = result;
-
-    return next();
-});
 router.post('/edit-userinfo',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
         userID:                    Joi.any()    .allow(null,'').required(),
@@ -264,3 +271,8 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
 });
 
 module.exports = router;
+
+
+
+
+

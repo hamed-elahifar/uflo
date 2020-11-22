@@ -14,6 +14,8 @@ module.exports  = async function (req, res, next) {
     let token = req.header('token') ? req.header('token') :   
                 req.body.token      ? req.body.token      : null
 
+    console.log('token',token)
+
     if (!token) return next({status:401,msg:'Access Denied, No Token Provided'});
     
     try {req.userinfo = jwt.verify(token, getConfig('jwt.token'))}
