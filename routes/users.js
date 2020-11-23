@@ -20,7 +20,7 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
 	    university:         Joi.string().required(),
 	    classLevel:         Joi.string().required().valid('Freshman','Sophomore','Junior','Senior'),
         major:              Joi.string().required(),
-        type:               Joi.string().required().valid('student','teacher'),
+        role:               Joi.string().required().valid('student','professor'),
 
         academicPerformance:            Joi.object().keys({
             CurrentAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average'),
@@ -48,7 +48,7 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {name,university,classLevel,major,
+    const {name,university,classLevel,major,role,
         academicPerformance,examTakingPerformance,learningHabits,
         teachingExperience,enrolledStudent,classroom} = req.body
 
@@ -62,6 +62,7 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     user.university             = university
     user.classLevel             = classLevel
     user.major                  = major
+    user.role                   = role
     user.academicPerformance    = academicPerformance    
     user.examTakingPerformance  = examTakingPerformance
     user.learningHabits         = learningHabits

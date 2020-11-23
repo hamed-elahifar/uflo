@@ -2,14 +2,12 @@ const mongoose     = require('mongoose')
 const {mongoDB}    = require('../startup/mongodb')
 
 const lessonSchema = new mongoose.Schema({
-    name:{
-        type:           String,
-        required:       true
-    },
+    
     title:{
         type:           String,
         required:       true
     },
+    desc:               String,
     courseID:{
         type:           String,
         required:       true,

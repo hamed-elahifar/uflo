@@ -4,11 +4,11 @@ const {mongoDB}     = require('../startup/mongodb')
 
 const chapterSchema = new mongoose.Schema({
 
-    name:               String,
     title:{
         type:           String,
         required:       true
     },
+    desc:               String,
 
     startDate:          Date,
 

@@ -9,8 +9,7 @@ const router         = require('express').Router()
 
 router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
-        token:      Joi.any().allow(null,'').optional(),
-        
+        token:      Joi.any().allow(null,'').optional(),  
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
@@ -19,7 +18,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     const [err,result] = await tojs(Course.find().select('-id -_id -__v'))
 
-    if (err) return next({status:500,error:err})
+    if (err) return next({status:500,msg:'Error',error:err})
 
     res.payload = result
     
@@ -29,8 +28,8 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
-        name:               Joi.string().required(),
-        description:        Joi.string().required(),
+        title:              Joi.string().required(),
+        desc:               Joi.string().required(),
         professorID:        Joi.string().required(),
         startDate:          Joi.string().optional().allow(null,''),
         endDate:            Joi.string().optional().allow(null,''),
@@ -42,12 +41,12 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {name,description,professorID,startDate,endDate,syllabus} = req.body
+    const {title,desc,professorID,startDate,endDate,syllabus} = req.body
 
     const prof = await User.findOne({userID:professorID,role:'professor'})
     if (!prof) return next({msg:'professor not found'})
 
-    const course = new Course({name,description,professorID,startDate,endDate,syllabus})
+    const course = new Course({title,desc,professorID,startDate,endDate,syllabus})
 
     const [err,result] = await tojs(course.save())
 
@@ -57,39 +56,48 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',[auth,sysAdmin],async(req,res,next)=>{
+router.post('/update',[auth],async(req,res,next)=>{
+
     const schema  = Joi.object({
 
-        courseID:       Joi.string().required(),
-        title:          Joi.string().optional(),
-        univsersity:    Joi.string().optional(),
-        professor:      Joi.string().optional(),
+        courseID:           Joi.string().required(),
+        title:              Joi.string().required(),
+        desc:               Joi.string().required(),
+        professorID:        Joi.string().required(),
+        startDate:          Joi.string().optional().allow(null,''),
+        endDate:            Joi.string().optional().allow(null,''),
+        syllabus:           Joi.string().optional().allow(null,''),
+
+        token:              Joi.any().allow(null,'').optional(),
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {courseID,title,univsersity,professor} = req.body
+    const {courseID,title,desc,professorID,startDate,endDate,syllabus} = req.body
 
     const course = await courseID.find({courseID})
     if (!course) return next({msg:'course not found'})
 
-    const prof = await User.find({userID,role:'professor'})
+    const prof = await User.findOne({userID:professorID,role:'professor'})
     if (!prof) return next({msg:'professor not found'})
 
-    course.title       = title       ? title       : course.title
-    course.professor   = professor   ? professor   : course.professor
-    course.univsersity = univsersity ? univsersity : course.univsersity
+    course.title           = title       != undefined ? title         : course.title
+    course.desc            = desc        != undefined ? desc          : course.desc
+    course.professorID     = professorID != undefined ? professorID   : course.professorID
+    course.startDate       = startDate   != undefined ? startDate     : course.startDate
+    course.endDate         = endDate     != undefined ? endDate       : course.endDate
+    course.syllabus        = syllabus    != undefined ? syllabus      : course.syllabus
+    
+    const [err,result]     = await tojs(course.save())
 
-    const [err,result] = await tojs(course.save({}))
-
-    if (err) errorLog(err)
+    if (err) return next({status:500,msg:'Error',error:err})
 
     res.payload = result
     
     return next();
 });
-router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
+router.post('/delete',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
         courseID:       Joi.string().required(),

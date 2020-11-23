@@ -1,5 +1,6 @@
 const router                    = require('express').Router()
-  ,   {Capter}                  = require('../models/chapter')
+  ,   {Chapter}                 = require('../models/chapter')
+  ,   {Course}                  = require('../models/courses')
 
   ,   Joi                       = require('@hapi/joi')
 
@@ -9,66 +10,63 @@ const router                    = require('express').Router()
 router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
 
-        title:          Joi.string().optional(),
-        univsersity:    Joi.string().optional(),
-        professor:      Joi.string().optional(),
+        // title:      Joi.string().required(),
+        // desc:       Joi.string().required(),
+        // startDate:  Joi.date()  .required(),
+        // order:      Joi.number().required(),
+        // courseID:   Joi.string().required(),
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,univsersity,professor} = req.body
+    const {title,desc,startDate,order,courseID} = req.body
 
-    query = {}
+    const [err,result] = await tojs(Course.find())
 
-    if (title)          query = {...query,title}
-    if (univsersity)    query = {...query,univsersity}
-    if (professor)      query = {...query,professor}
-
-    console.log(query)
-
-    const [err,result] = await tojs(Course.find({}))
-
-    if (err) errorLog(err)
+    if (err) return next({status:500,msg:'Error',error:err})
 
     res.payload = result
     
     return next();
 });
-router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
+router.post('/add',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        title:          Joi.string().required(),
-        univsersity:    Joi.string().required(),
-        professor:      Joi.string().required(),
+        title:      Joi.string().required(),
+        desc:       Joi.string().required(),
+        startDate:  Joi.date()  .optional(),
+        order:      Joi.number().required(),
+        courseID:   Joi.string().required(),
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,univsersity,professor} = req.body
+    const {title,desc,startDate,order,courseID,} = req.body
 
-    const prof = await User.find({userID,role:'professor'})
-    if (!prof) return next({msg:'professor not found'})
+    const course = await Course.find({courseID})
+    if (!course) return next({msg:'course not found'})
 
-    const course = new Course({title,univsersity,professor})
+    const chapter = new Chapter({title,univsersity,professor})
 
-    const [err,result] = await tojs(course.save({}))
+    const [err,result] = await tojs(chapter.save())
 
-    if (err) errorLog(err)
+    if (err) return next({msg:'Error',error:err})
 
     res.payload = result
 
     return next();
 });
-router.post('/update',[auth,sysAdmin],async(req,res,next)=>{
+router.post('/update',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        courseID:       Joi.string().required(),
-        title:          Joi.string().optional(),
-        univsersity:    Joi.string().optional(),
-        professor:      Joi.string().optional(),
-
+        _id:        Joi.string().required(),
+        title:      Joi.string().required(),
+        desc:       Joi.string().required(),
+        startDate:  Joi.date()  .optional(),
+        order:      Joi.number().required(),
+        courseID:   Joi.string().required(),
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
@@ -93,7 +91,7 @@ router.post('/update',[auth,sysAdmin],async(req,res,next)=>{
     
     return next();
 });
-router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
+router.post('/delete',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
         courseID:       Joi.string().required(),

@@ -3,28 +3,28 @@ const {mongoDB}    = require('../startup/mongodb')
 
 const courseSchema = new mongoose.Schema({
     
-    // students:
-    // owners
-    
-    // slug
-    // chapters
-    // passcode
-
+    title:{
+        type:           String,
+        required:       true
+    },
+    desc:               String,
     courseID:{
         type:           String,
         default:        () => Math.random().toString(35).substr(2,6),
     },
-    name:{
+    passcode:{
         type:           String,
-        required:       true
+        default:        () => Math.random().toString(35).substr(2,6),
     },
-    description:        String,
     professorID:{
-        type:           String,
+        type:           [String],
         ref:            'users',
         required:       true,
     },
-    startDate:          Date,
+    startDate:{
+        type:           Date,
+        default:        Date.now
+    },
     endDate:            Date,
     syllabus:           String,
 
@@ -36,7 +36,7 @@ const courseSchema = new mongoose.Schema({
 
 courseSchema.virtual('professor',{
     ref:             'users',
-    localField:      'professor',
+    localField:      'professorID',
     foreignField:    'userID',
     justOne:          true,
 });
