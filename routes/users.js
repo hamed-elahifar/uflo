@@ -16,8 +16,11 @@ router.all('/me',[auth],async(req,res,next)=>{
 router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
         name:               Joi.string().optional().allow(null,''),
-	    university:         Joi.string().required(),
-	    classLevel:         Joi.string().required().valid('Freshman','Sophomore','Junior','Senior'),
+        university:         Joi.string().required(),
+        
+        classLevel:         Joi.string().valid('Freshman','Sophomore','Junior','Senior')
+                                        .when('role',{'is':'student',then:Joi.string().required(),otherwise:Joi.forbidden()}),
+        
         major:              Joi.array().items(Joi.string()).required(),
 
         role:               Joi.string().required().valid('student','professor'),
@@ -25,24 +28,24 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
         academicPerformance:            Joi.object().keys({
             CurrentAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average'),
             DesiredAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average')
-        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise: Joi.forbidden()}),
+        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
 
         examTakingPerformance:          Joi.object().keys({
             ExamType:                   Joi.string().required().valid('Analytical','Memorization'),
             QuestionType:               Joi.string().required().valid('Multiple Choice','Free Response'),
-        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise: Joi.forbidden()}),
+        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
 
         learningHabits:             Joi.object().keys({
             ProcrastinationLevel:   Joi.string().required().valid('High','Medium','Low'),
-            LearningType:           Joi.string().required().valid('Visual','Verbal/Auditory','Kinesthetic','Reading/Writing'),
-        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise: Joi.forbidden()}),
+            LearningType:           Joi.array().items(Joi.string().valid('Visual','Verbal/Auditory','Kinesthetic','Reading/Writing')).required(),
+        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
 
         teachingExperience:         Joi.string().valid('below 5 years','below 10 years','below 20 years','more than 20 years')
-                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise: Joi.forbidden()}),
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise:Joi.forbidden()}),
         enrolledStudent:            Joi.string().valid('less than 20','less than 100','less than 200','more than 200')
-                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise: Joi.forbidden()}),
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise:Joi.forbidden()}),
         classroom:                  Joi.string()
-                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise: Joi.forbidden()}),
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise:Joi.forbidden()}),
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
