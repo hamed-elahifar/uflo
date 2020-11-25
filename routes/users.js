@@ -38,11 +38,11 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
         })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise: Joi.forbidden()}),
 
         teachingExperience:         Joi.string().valid('below 5 years','below 10 years','below 20 years','more than 20 years')
-                                       .when('role',{'is':'teacher',then:Joi.string().required(),otherwise: Joi.forbidden()}),
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise: Joi.forbidden()}),
         enrolledStudent:            Joi.string().valid('less than 20','less than 100','less than 200','more than 200')
-                                       .when('role',{'is':'teacher',then:Joi.string().required(),otherwise: Joi.forbidden()}),
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise: Joi.forbidden()}),
         classroom:                  Joi.string()
-                                       .when('role',{'is':'teacher',then:Joi.string().required(),otherwise: Joi.forbidden()}),
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise: Joi.forbidden()}),
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
