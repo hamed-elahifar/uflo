@@ -77,7 +77,7 @@ const userSchema = new mongoose.Schema({
         type:           String,
         enum:           ['Freshman','Sophomore','Junior','Senior']
     },
-    major:              String,
+    major:              [String],
     academicPerformance:{
         CurrentAcademicPerformance:{
             type:       String,

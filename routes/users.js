@@ -18,7 +18,8 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
         name:               Joi.string().optional().allow(null,''),
 	    university:         Joi.string().required(),
 	    classLevel:         Joi.string().required().valid('Freshman','Sophomore','Junior','Senior'),
-        major:              Joi.string().required(),
+        major:              Joi.array().items(Joi.string()).required(),
+
         role:               Joi.string().required().valid('student','professor'),
 
         academicPerformance:            Joi.object().keys({
