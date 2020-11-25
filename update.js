@@ -20,9 +20,12 @@ app.all('/:item/:mode?',(req,res)=>{
 
     if (mode == 'soft') {
         exec(`git --git-dir='${data[item].dir}/.git' --work-tree=${data[item].dir} pull` , (err,stdout,stderr) => {
+
             if (err)    {console.log(err)}
             if (stderr) {console.log(stderr)}
-            res.send(stdout);
+
+            stderr ? res.send(stderr) : res.send(stdout)
+            
         });
         if (data[item].pm2name){
             exec(`pm2 restart ${data[item].pm2name}`,(err,stdout,stderr) => {
@@ -35,9 +38,12 @@ app.all('/:item/:mode?',(req,res)=>{
     if (mode == 'hard') {
 
         exec(`git --git-dir='${data[item].dir}/.git' --work-tree=${data[item].dir} fetch --all && git --git-dir='${data[item].dir}/.git' --work-tree=${data[item].dir} reset --hard origin/master` , (err,stdout,stderr) => {
+            
             if (err)    {console.log(err)}
             if (stderr) {console.log(stderr)}
-            res.send(stdout);
+            
+            stderr ? res.send(stderr) : res.send(stdout)
+
         });
 
         if (data[item].pm2name) {
