@@ -38,7 +38,7 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
         learningHabits:             Joi.object().keys({
             ProcrastinationLevel:   Joi.string().required().valid('High','Medium','Low'),
             LearningType:           Joi.array().items(Joi.string().valid('Visual','Verbal/Auditory','Kinesthetic','Reading/Writing')).required(),
-        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
+        })                             .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
 
         teachingExperience:         Joi.string().valid('below 5 years','below 10 years','below 20 years','more than 20 years')
                                        .when('role',{'is':'professor',then:Joi.string().required(),otherwise:Joi.forbidden()}),
@@ -259,17 +259,21 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
 
     const {userID} = req.body
 
-    let user = await User.findOne({userID})
+    let user = await User.findOneAndDelete({userID})
     if (!user) return next({status:404,msg:'user not found'});
 
-    if (user.deleted == null){
-        user = await User.findOneAndUpdate({userID:req.body.userID},{$set:{deleted:Date.now()}});
-        res.payload = {status:'success',status:200,msg:'operation successful'}
-    }
-    if (user.deleted != null){
-        user = await User.findOneAndUpdate({userID:req.body.userID},{$set:{deleted:null}});
-        res.payload = {status:'success',status:200,msg:'recover successful'}
-    }
+    console.log('Delet user info:',user)
+
+    // if (user.deleted == null){
+    //     user = await User.findOneAndUpdate({userID:req.body.userID},{$set:{deleted:Date.now()}});
+    //     res.payload = {status:'success',status:200,msg:'operation successful'}
+    // }
+    // if (user.deleted != null){
+    //     user = await User.findOneAndUpdate({userID:req.body.userID},{$set:{deleted:null}});
+    //     res.payload = {status:'success',status:200,msg:'recover successful'}
+    // }
+
+    res.payload = {status:'success',status:200,msg:'Deletion successful'}
 
     return next();
 });

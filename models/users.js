@@ -61,6 +61,10 @@ const userSchema = new mongoose.Schema({
     birthDate:{
         type:           String,
     },
+    courses:{
+        type:           [String],
+        ref:            'course'
+    },
     // incorrectPassCount:{
     //     type:           Number,
     //     maxlength:      1,

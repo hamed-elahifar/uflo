@@ -114,5 +114,34 @@ router.post('/delete',[auth],async(req,res,next)=>{
     res.payload = 'course deleted successfully'
     return next()
 });
+router.post('/register-student',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+
+        passcode:       Joi.string().required(),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {passcode} = req.body
+
+    const course = await Course.findOne({passcode})
+    if (!course) return next({status:404,msg:'course not found'})
+
+    const user = await User.findOne({userID:req.userinfo.userID})
+    console.assert(!user,'in this line user must exist but it is not.')
+
+    user.courses.push(course.courseID);
+
+    user.save().then(()=>{
+        return res.payload = {status:201,msg:`you successfully register at "${course.title}" course`}
+    }).catch(()=>{
+        return res.payload = {status:500,msg:'faild'}
+    });
+
+
+
+})
+
 
 module.exports = router;
