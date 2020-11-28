@@ -18,6 +18,11 @@ const lessonSchema = new mongoose.Schema({
         required:       true,
         ref:            'chapters'
     },
+    lessonID:{
+        type:           String,
+        default:        () => Math.random().toString(35).substr(2,10),
+        unique:         true,
+    },
     order:{
         type:           Number,
         min:            0

@@ -97,8 +97,8 @@ module.exports = function (app) {
     app.use('/auth',        require('../routes/auth'))
     app.use('/users',       require('../routes/users'))
     app.use('/courses',     require('../routes/course'))
-    // app.use('/users',       require('../routes/users'))
-    // app.use('/users',       require('../routes/users'))
+    app.use('/lessons',     require('../routes/lesson'))
+    app.use('/chapters',    require('../routes/chapter'))
 
     
     app.use('*',            require('../middleware/response'))

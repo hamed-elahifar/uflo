@@ -2,6 +2,8 @@ const jwt       = require('jsonwebtoken')
 
 module.exports  = async function (req, res, next) {
 
+    return next()
+
     const ip = req.ip.substr(0, 7) == "::ffff:" ? req.ip.substr(7) : req.ip
     
     // if user came from cookie-session

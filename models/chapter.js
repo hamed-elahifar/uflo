@@ -1,4 +1,3 @@
-const { toUpper } = require('lodash');
 const mongoose      = require('mongoose')
 const {mongoDB}     = require('../startup/mongodb')
 
@@ -16,7 +15,12 @@ const chapterSchema = new mongoose.Schema({
     courseID:{
         type:           String,
         required:       true,
-        ref:            'courses'
+        // ref:            'courses'
+    },
+    chapterID:{
+        type:           String,
+        default:        () => Math.random().toString(35).substr(2,10),
+        unique:         true,
     },
 
 },{

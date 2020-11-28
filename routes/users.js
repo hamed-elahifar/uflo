@@ -79,7 +79,10 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
 
     return next();
 });
-
+router.post('/list',[auth],async(req,res,next)=>{
+    res.payload = await User.find();
+    return next();
+})
 router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
         username:                   Joi.string().required().min(3),
@@ -279,8 +282,3 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
 });
 
 module.exports = router;
-
-
-
-
-

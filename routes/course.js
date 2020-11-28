@@ -108,7 +108,7 @@ router.post('/delete',[auth],async(req,res,next)=>{
 
     const {courseID} = req.body
 
-    const course = await courseID.findOneAndDelete({courseID})
+    const course = await Course.findOneAndDelete({courseID})
     if (!course) return next({msg:'course not found'})
 
     res.payload = 'course deleted successfully'

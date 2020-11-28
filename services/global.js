@@ -71,8 +71,8 @@ Array.prototype.isEmpty = function() {return !!this.length}
 
 global.errorLog = (msg,err) => {
 
-    // console.log('msg',msg)
-    // console.log('err',err)
+    console.log('msg',msg)
+    console.log('err',err)
 
     if (!msg && !err) return
 

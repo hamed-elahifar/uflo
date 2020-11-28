@@ -22,7 +22,7 @@ router.post('/list',async(req,res,next)=>{
 
     const {title,desc,startDate,order,courseID} = req.body
 
-    const [err,result] = await tojs(Course.find())
+    const [err,result] = await tojs(Chapter.find())
 
     if (err) return next({status:500,msg:'Error',error:err})
 
@@ -30,7 +30,7 @@ router.post('/list',async(req,res,next)=>{
     
     return next();
 });
-router.post('/add',[auth],async(req,res,next)=>{
+router.post('/add',[],async(req,res,next)=>{
     const schema  = Joi.object({
 
         title:      Joi.string().required(),
@@ -43,12 +43,12 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,startDate,order,courseID,} = req.body
+    const {title,desc,startDate,order,courseID} = req.body
 
     const course = await Course.find({courseID})
     if (!course) return next({msg:'course not found'})
 
-    const chapter = new Chapter({title,univsersity,professor})
+    const chapter = new Chapter({title,desc,startDate,order,courseID})
 
     const [err,result] = await tojs(chapter.save())
 
@@ -61,31 +61,31 @@ router.post('/add',[auth],async(req,res,next)=>{
 router.post('/update',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        _id:        Joi.string().required(),
+        chapterID:  Joi.string().required(),
         title:      Joi.string().required(),
         desc:       Joi.string().required(),
         startDate:  Joi.date()  .optional(),
         order:      Joi.number().required(),
         courseID:   Joi.string().required(),
+
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {courseID,title,univsersity,professor} = req.body
+    const {chapterID,title,desc,startDate,order,courseID} = req.body
 
-    const course = await courseID.find({courseID})
-    if (!course) return next({msg:'course not found'})
+    const chapter = await Chapter.findOne({chapterID})
+    if (!chapter) return next({msg:'chapter not found'})
 
-    const prof = await User.find({userID,role:'professor'})
-    if (!prof) return next({msg:'professor not found'})
+    chapter.title       = title       ? title       : chapter.title
+    chapter.desc        = desc        ? desc        : chapter.desc
+    chapter.startDate   = startDate   ? startDate   : chapter.startDate
+    chapter.order       = order       ? order       : chapter.order
+    chapter.courseID    = courseID    ? courseID    : chapter.courseID
 
-    course.title       = title       ? title       : course.title
-    course.professor   = professor   ? professor   : course.professor
-    course.univsersity = univsersity ? univsersity : course.univsersity
+    const [err,result] = await tojs(chapter.save())
 
-    const [err,result] = await tojs(course.save({}))
-
-    if (err) errorLog(err)
+    if (err) return next({status:500,msg:'faild',error:err})
 
     res.payload = result
     
@@ -94,18 +94,18 @@ router.post('/update',[auth],async(req,res,next)=>{
 router.post('/delete',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        courseID:       Joi.string().required(),
+        chapterID:       Joi.string().required(),
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {courseID} = req.body
+    const {chapterID} = req.body
 
-    const course = await courseID.findOneAndDelete({courseID})
-    if (!course) return next({msg:'course not found'})
+    const chapter = await Chapter.findOneAndDelete({chapterID})
+    if (!chapter) return next({msg:'chapter not found'})
 
-    res.payload = 'course deleted successfully'
+    res.payload = 'chapter deleted successfully'
     return next()
 });
 module.exports = router;
