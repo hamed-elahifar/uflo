@@ -8,7 +8,7 @@ const data = {
         dir:        '/root/uFlo/static'
     },
     app:{
-        pm2name:    '0',
+        pm2name:    'index',
         dir:        '/root/uFlo',
     }
 }
