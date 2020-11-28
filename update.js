@@ -26,7 +26,7 @@ app.all('/:item/:mode?',(req,res)=>{
 
             stderr ? res.send(stderr) : res.send(stdout)
                         
-            if ((data[item].pm2name) && (stdout != 'Already up to date.')){
+            if (data[item].pm2name && (stdout != 'Already up to date.')){
                 exec(`pm2 restart ${data[item].pm2name}`,(err,stdout,stderr) => {
                     if (err)    {console.log(err)}
                     if (stderr) {console.log(stderr)}
