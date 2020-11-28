@@ -16,10 +16,10 @@ module.exports  = async function (req, res, next) {
 
     // console.log('token',token)
 
-    if (!token) return next({status:401,msg:'Access Denied, No Token Provided'});
+    if (!token) return next({status:401,msg:'Unauthorized!, No Token Provided'});
     
     try {req.userinfo = jwt.verify(token, getConfig('jwt.token'))}
-    catch (ex) {return next({status:401,msg:'invalid token'})}
+    catch (ex) {return next({status:401,msg:'Unauthorized!, invalid token'})}
 
     req.userinfo.ip = ip
 
