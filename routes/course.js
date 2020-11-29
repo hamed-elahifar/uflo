@@ -158,23 +158,26 @@ router.post('/upload/:courseID',[auth],async(req,res)=>{
     if (!course) return next({status:404,msg:''})
 
     upload(req,res,(err) => {
-        if (err) return next({status:500,msg:'upload faild',error:err});
+
+        if (!req.files) return res.status(500).json({msg:'no file uploaded'})
+        if (err)        return res.status(500).json({msg:'upload faild',error:err});
         
         const directory = path.join(__dirname,'..','upload',req.params.courseID)
         
         if (!fs.existsSync(directory)){fs.mkdirSync(directory)}
 
         // Move files from ./upload to ./upload/courseID
-        for (let i=0;i<req.files.length;i++){
-            fs.rename(path.join(__dirname,'..','upload',req.files[i].filename),
-                      path.join(__dirname,'..','upload',req.params.courseID,req.files[i].filename), 
+        for (file of req.files){
+            console.log(file)
+            fs.rename(path.join(__dirname,'..','upload',file.filename),
+                      path.join(__dirname,'..','upload',req.params.courseID,file.filename), 
                       (err) => {
-                        if (err) return next({status:400,msg:`error on moving file "${req.files[i].filename}"`,error:err})
+                        if (err) return next({status:400,msg:`error on moving file "${file.filename}"`,error:err})
                       }
             )
         }
-        for (let i=0;i<req.files.length;i++){
-            req.files[i].path = path.join('upload',req.params.courseID,req.files[i].filename)
+        for (file of req.files){
+            file.path = path.join('upload',req.params.courseID,file.filename)
         }
         res.json(req.files);
     });
