@@ -23,6 +23,7 @@ module.exports = function (app) {
     app.use(express.json({limit:'100kb'}));
     app.use(JSONValidation);
     app.use(express.static('static'));
+    app.use(express.static('upload'));
 
     if (getConfig('exposeLogsFolder')) app.use('/logs', express.static('logs'));
 

@@ -10,7 +10,11 @@ const router                    = require('express').Router()
   ,   auth                      = require('../middleware/auth')
 
 router.all('/me',[auth],async(req,res,next)=>{
-    res.payload = req.user || req.userinfo;
+
+    const userinfo = req.user || req.userinfo;
+
+    res.payload = await User.findOne({userID:userinfo.userID}).populate('courses')
+
     return next();
 });
 router.post('/edit-myinfo',[auth],async(req,res,next)=>{

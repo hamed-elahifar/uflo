@@ -61,7 +61,7 @@ const userSchema = new mongoose.Schema({
     birthDate:{
         type:           String,
     },
-    courses:{
+    courseIDs:{
         type:           [String],
         ref:            'course'
     },
@@ -117,7 +117,6 @@ const userSchema = new mongoose.Schema({
         type:           String,
         enum:           ['Dark','Light']
     }
-    
 
 },{timestamps:          true,
    // toObject:         {virtuals:true},
@@ -187,6 +186,13 @@ userSchema.methods.generateAuthToken = function () {
 userSchema.methods.validatePassword = async (password) => {
     return await bcrypt.compare(password,this.password);
 }
+
+userSchema.virtual('courses',{
+    ref:           'courses',
+    localField:    'courseIDs',
+    foreignField:  'courseID',
+    justOne:       false,
+});
 
 const   User = mongoDB.model('users',userSchema,'users');
 

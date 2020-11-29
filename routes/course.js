@@ -3,9 +3,12 @@ const router         = require('express').Router()
   ,   {Course}       = require('../models/courses')
 
   ,   Joi            = require('@hapi/joi')
+  ,   multer         = require('multer')
 
   ,  {sysAdmin}      = require('../middleware/sysRoles')
   ,   auth           = require('../middleware/auth')
+  ,   path           = require('path')
+  ,   fs             = require('fs')
 
 router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
@@ -128,20 +131,53 @@ router.post('/register-student',[auth],async(req,res,next)=>{
     const course = await Course.findOne({passcode})
     if (!course) return next({status:404,msg:'course not found'})
 
-    const user = await User.findOne({userID:req.user.userID})
-    console.assert(!user,'in this line user must exist but it is not.')
+    const [err,result] = await tojs(User.updateOne(
+        {userID:req.user.userID},
+        {$addToSet:{courseIDs:course.courseID}}
+    ))
 
-    user.courses.push(course.courseID);
+    if (err) return next({status:500,msg:'faild'})
 
-    user.save().then(()=>{
-        return res.payload = {status:201,msg:`you successfully register at "${course.title}" course`}
-    }).catch(()=>{
-        return res.payload = {status:500,msg:'faild'}
-    });
+    res.payload = {status:201,msg:`you successfully register at "${course.title}" course`}
 
-
+    return next();
 
 })
 
+const storage = multer.diskStorage({
+    destination:    (req,file,cb)=>{cb(null,'upload')},
+    filename:       (req,file,cb)=>{cb(null, file.originalname)}
+});
+const fileFilter  = (req,file,cb) => {cb(null, true)}
+const limits      = {files: 10,fileSize: 20 * 1024 * 1024};// 20MB
+const upload      = multer({storage,fileFilter,limits}).array('upload',10);
+
+router.post('/upload/:courseID',[auth],async(req,res)=>{
+
+    const course = await Course.findOne({courseID:req.params.courseID})
+    if (!course) return next({status:404,msg:''})
+
+    upload(req,res,(err) => {
+        if (err) return next({status:500,msg:'upload faild',error:err});
+        
+        const directory = path.join(__dirname,'..','upload',req.params.courseID)
+        
+        if (!fs.existsSync(directory)){fs.mkdirSync(directory)}
+
+        // Move files from ./upload to ./upload/courseID
+        for (let i=0;i<req.files.length;i++){
+            fs.rename(path.join(__dirname,'..','upload',req.files[i].filename),
+                      path.join(__dirname,'..','upload',req.params.courseID,req.files[i].filename), 
+                      (err) => {
+                        if (err) return next({status:400,msg:`error on moving file "${req.files[i].filename}"`,error:err})
+                      }
+            )
+        }
+        for (let i=0;i<req.files.length;i++){
+            req.files[i].path = path.join('upload',req.params.courseID,req.files[i].filename)
+        }
+        res.json(req.files);
+    });
+});
 
 module.exports = router;
