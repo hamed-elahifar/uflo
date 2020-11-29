@@ -76,7 +76,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     const {courseID,title,desc,professorID,startDate,endDate,syllabus} = req.body
 
-    const course = await courseID.find({courseID})
+    const course = await courseID.findOne({courseID})
     if (!course) return next({msg:'course not found'})
 
     const prof = await User.findOne({userID:professorID,role:'professor'})
@@ -128,7 +128,7 @@ router.post('/register-student',[auth],async(req,res,next)=>{
     const course = await Course.findOne({passcode})
     if (!course) return next({status:404,msg:'course not found'})
 
-    const user = await User.findOne({userID:req.userinfo.userID})
+    const user = await User.findOne({userID:req.user.userID})
     console.assert(!user,'in this line user must exist but it is not.')
 
     user.courses.push(course.courseID);
