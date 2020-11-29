@@ -3,7 +3,7 @@ const LocalStrategy     = require('passport-local').Strategy
 
 const JwtStrategy       = require('passport-jwt').Strategy
 const ExtractJwt        = require('passport-jwt').ExtractJwt
-const GoogleStrategy    = require( 'passport-google-oauth2' ).Strategy;
+const GoogleStrategy    = require('passport-google-oauth2').Strategy;
 const {User}            = require('../models/users')
 
 passport.use(new LocalStrategy(
@@ -97,7 +97,7 @@ passport.serializeUser((googleUserID,done) => {
 passport.deserializeUser(async (googleUserID,done) => {
     User.findOne({userID:googleUserID})
         .then (user => done(null,user))
-        .catch(ex   => done(ex)) 
+        .catch(ex   => done(ex))
 });
 
 module.exports = {passport}

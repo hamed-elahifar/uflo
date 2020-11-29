@@ -16,6 +16,7 @@ const courseSchema = new mongoose.Schema({
     passcode:{
         type:           String,
         default:        () => Math.random().toString(35).substr(2,6),
+        // select:         false,
     },
     professorID:{
         type:           [String],

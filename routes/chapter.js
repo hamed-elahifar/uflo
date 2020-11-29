@@ -30,7 +30,7 @@ router.post('/list',async(req,res,next)=>{
     
     return next();
 });
-router.post('/add',[],async(req,res,next)=>{
+router.post('/add',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
         title:      Joi.string().required(),

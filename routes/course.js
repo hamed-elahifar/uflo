@@ -7,7 +7,7 @@ const router         = require('express').Router()
   ,  {sysAdmin}      = require('../middleware/sysRoles')
   ,   auth           = require('../middleware/auth')
 
-router.post('/list',[auth],async(req,res,next)=>{
+router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
         token:      Joi.any().allow(null,'').optional(),  
     })
