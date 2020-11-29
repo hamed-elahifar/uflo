@@ -1,4 +1,5 @@
-const jwt       = require('jsonwebtoken')
+const jwt       = require('jsonwebtoken');
+const { User } = require('../models/users');
 
 module.exports  = async function (req, res, next) {
 
@@ -18,10 +19,15 @@ module.exports  = async function (req, res, next) {
 
     if (!token) return next({status:401,msg:'Unauthorized!, No Token Provided'});
     
-    try {req.userinfo = jwt.verify(token, getConfig('jwt.token'))}
-    catch (ex) {return next({status:401,msg:'Unauthorized!, invalid token'})}
+    try {
+        req.userinfo    = jwt.verify(token,getConfig('jwt.token'))
+        req.user        = await User.findOne({userID:req.userinfo.userID})
+    }
+    catch (ex) {
+        return next({status:401,msg:'Unauthorized!, invalid token'})
+    }
 
-    req.userinfo.ip = ip
+    req.user.ip = ip
 
     return next();
 };

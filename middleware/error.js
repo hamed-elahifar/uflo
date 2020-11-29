@@ -20,8 +20,6 @@ module.exports  = function(err, req, res, next) {
     
     resp.data    = res.payload && res.payload.data  ? res.payload.data : res.payload || ''
 
-    console.log(getConfig('debug'))
-
     if (getConfig('debug')) resp.error = err.error || undefined
 
     res.status(200).json(resp)

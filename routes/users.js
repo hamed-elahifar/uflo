@@ -10,9 +10,9 @@ const router                    = require('express').Router()
   ,   auth                      = require('../middleware/auth')
 
 router.all('/me',[auth],async(req,res,next)=>{
-    res.payload = req.user;
+    res.payload = req.user || req.userinfo;
     return next();
-})
+});
 router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
         name:               Joi.string().optional().allow(null,''),
