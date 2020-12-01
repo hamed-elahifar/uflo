@@ -176,6 +176,7 @@ router.post('/upload/:courseID',[auth],async(req,res)=>{
                       }
             )
         }
+        // update path
         for (file of req.files){
             file.path = path.join('upload',req.params.courseID,file.filename)
         }
