@@ -1,5 +1,5 @@
 const jwt       = require('jsonwebtoken');
-const { User } = require('../models/users');
+const {User}    = require('../models/users');
 
 module.exports  = async function (req, res, next) {
 
@@ -15,9 +15,9 @@ module.exports  = async function (req, res, next) {
     let token = req.header('token') ? req.header('token') :   
                 req.body.token      ? req.body.token      : null
 
-    console.log('token header',req.header('token'))
-    console.log('token body'  ,req.body.token)
-    console.log('token',token)
+    // console.log('token header',req.header('token'))
+    // console.log('token body'  ,req.body.token)
+    // console.log('token',token)
 
     if (!token) return next({status:401,msg:'Unauthorized!, No Token Provided'});
     

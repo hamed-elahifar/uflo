@@ -17,6 +17,7 @@ app.all('/:item/:mode?',(req,res)=>{
 
     let {item,mode} = req.params
     if (!mode) mode = 'soft';
+    if (!item) item = 'web'
 
     if (mode == 'soft') {
         exec(`git --git-dir='${data[item].dir}/.git' --work-tree=${data[item].dir} pull` , (err,stdout,stderr) => {
@@ -25,7 +26,7 @@ app.all('/:item/:mode?',(req,res)=>{
             if (stderr) {console.log(stderr)}
 
             stderr ? res.send(stderr) : res.send(stdout)
-                        
+
             if (data[item].pm2name && (stdout != 'Already up to date.')){
                 exec(`pm2 restart ${data[item].pm2name}`,(err,stdout,stderr) => {
                     if (err)    {console.log(err)}
