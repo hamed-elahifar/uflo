@@ -27,7 +27,10 @@ const lobjSchema = new mongoose.Schema({
         type:           Number,
         min:            0
     },
-    startDate:          Date,
+    startDate:{
+        type:           Date,
+        default:        Date.now
+    },
 
 },{
     timestamps:          true,

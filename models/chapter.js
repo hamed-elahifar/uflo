@@ -9,7 +9,10 @@ const chapterSchema = new mongoose.Schema({
     },
     desc:               String,
 
-    startDate:          Date,
+    startDate:{
+        type:           Date,
+        default:        Date.now
+    },
 
     order:              Number,
     courseID:{

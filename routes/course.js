@@ -19,7 +19,7 @@ router.post('/list',async(req,res,next)=>{
 
     // const {} = req.body
 
-    const [err,result] = await tojs(Course.find().select('-id -_id -__v'))
+    const [err,result] = await tojs(Course.find().select('-id -_id -__v').populate())
 
     if (err) return next({status:500,msg:'Error',error:err})
 
@@ -46,7 +46,7 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     const {title,desc,professorID,startDate,endDate,syllabus} = req.body
 
-    const prof = await User.findOne({userID:professorID,role:'professor'})
+    const prof = await User.findOne({userID:professorID}) //,role:'professor'
     if (!prof) return next({msg:'professor not found'})
 
     const course = new Course({title,desc,professorID,startDate,endDate,syllabus})
