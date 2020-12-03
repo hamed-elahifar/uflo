@@ -1,7 +1,6 @@
 const router                    = require('express').Router()
   ,   {User}                    = require('../models/users')
-
-//   ,   {mongoDB}                 = require('../startup/mongodb')
+  ,   {Course}                  = require('../models/courses')
 
 //   ,  {sendEmail}                = require('../services/email')
   ,   Joi                       = require('@hapi/joi')
@@ -11,9 +10,15 @@ const router                    = require('express').Router()
 
 router.all('/me',[auth],async(req,res,next)=>{
 
-    const userinfo = req.user || req.userinfo;
+    let userinfo = req.user || req.userinfo;
 
-    res.payload = await User.findOne({userID:userinfo.userID}).populate('courses')
+    let me = await User.findOne({userID:userinfo.userID}).populate('courses').lean();
+
+    if (me.role == 'professor') {
+        // me.courses = await Course.find({professorID:me.userID})
+    }
+
+    res.payload = me
 
     return next();
 });

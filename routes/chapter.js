@@ -14,7 +14,9 @@ router.post('/list',async(req,res,next)=>{
         // desc:       Joi.string().required(),
         // startDate:  Joi.date()  .required(),
         // order:      Joi.number().required(),
-        // courseID:   Joi.string().required(),
+        courseID:   Joi.string().optional(),
+
+        token:      Joi.any().optional().allow('',null)
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
@@ -22,7 +24,11 @@ router.post('/list',async(req,res,next)=>{
 
     const {title,desc,startDate,order,courseID} = req.body
 
-    const [err,result] = await tojs(Chapter.find())
+    let query = {}
+
+    if (courseID) query = {...query,courseID}
+
+    const [err,result] = await tojs(Chapter.find(query))
 
     if (err) return next({status:500,msg:'Error',error:err})
 
