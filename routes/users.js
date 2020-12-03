@@ -12,10 +12,12 @@ router.all('/me',[auth],async(req,res,next)=>{
 
     let userinfo = req.user || req.userinfo;
 
-    let me = await User.findOne({userID:userinfo.userID}).populate('courses').lean();
+    let me = await User.findOne({userID:userinfo.userID})
+                       .populate('courses')
+                       .lean();
 
     if (me.role == 'professor') {
-        // me.courses = await Course.find({professorID:me.userID})
+        me.author = await Course.find({professorID:me.userID})
     }
 
     res.payload = me
