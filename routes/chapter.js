@@ -101,7 +101,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     if (!arrayOfErrors.isEmpty) return next({status:500,msg:'faild',error:arrayOfErrors})
 
-    res.payload = {msg:'success'}
+    res.payload = {msg:'successful'}
     
     return next();
 });
