@@ -2,7 +2,6 @@ const router                    = require('express').Router()
   ,   {User}                    = require('../models/users')
   ,   {Course}                  = require('../models/courses')
 
-//   ,  {sendEmail}                = require('../services/email')
   ,   Joi                       = require('@hapi/joi')
 
   ,  {sysAdmin}                 = require('../middleware/sysRoles')
@@ -163,7 +162,6 @@ router.post('/get-userinfo',[auth,sysAdmin],async(req,res,next)=>{
 
     return next();
 });
-
 router.post('/edit-userinfo',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
         userID:                    Joi.any()    .allow(null,'').required(),

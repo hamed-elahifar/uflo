@@ -65,35 +65,43 @@ router.post('/add',[auth],async(req,res,next)=>{
     return next();
 });
 router.post('/update',[auth],async(req,res,next)=>{
-    const schema  = Joi.object({
-
-        chapterID:  Joi.string().required(),
-        title:      Joi.string().required(),
-        desc:       Joi.string().required(),
-        startDate:  Joi.date()  .optional(),
-        order:      Joi.number().required(),
-        courseID:   Joi.string().required(),
-
-    })
+    const schema  = Joi.array().items(
+        Joi.object({
+    
+            chapterID:  Joi.string().required(),
+            title:      Joi.string().required(),
+            desc:       Joi.string().required(),
+            startDate:  Joi.date()  .optional(),
+            order:      Joi.number().required(),
+            courseID:   Joi.string().required(),
+    
+        })
+    )
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {chapterID,title,desc,startDate,order,courseID} = req.body
+    let arrayOfErrors = []
 
-    const chapter = await Chapter.findOne({chapterID})
-    if (!chapter) return next({msg:'chapter not found'})
+    for (item of req.body){
+        const {chapterID,title,desc,startDate,order,courseID} = item
 
-    chapter.title       = title       ? title       : chapter.title
-    chapter.desc        = desc        ? desc        : chapter.desc
-    chapter.startDate   = startDate   ? startDate   : chapter.startDate
-    chapter.order       = order       ? order       : chapter.order
-    chapter.courseID    = courseID    ? courseID    : chapter.courseID
+        const chapter = await Chapter.findOne({chapterID})
+        if (!chapter) return next({msg:'chapter not found'})
+    
+        chapter.title       = title       ? title       : chapter.title
+        chapter.desc        = desc        ? desc        : chapter.desc
+        chapter.startDate   = startDate   ? startDate   : chapter.startDate
+        chapter.order       = order       ? order       : chapter.order
+        chapter.courseID    = courseID    ? courseID    : chapter.courseID
+    
+        const [err,result] = await tojs(chapter.save())
 
-    const [err,result] = await tojs(chapter.save())
+        if (err) arrayOfErrors.push(err)
+    }
 
-    if (err) return next({status:500,msg:'faild',error:err})
+    if (!arrayOfErrors.isEmpty) return next({status:500,msg:'faild',error:arrayOfErrors})
 
-    res.payload = result
+    res.payload = {msg:'success'}
     
     return next();
 });
