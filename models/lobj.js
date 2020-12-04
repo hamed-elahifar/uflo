@@ -8,6 +8,11 @@ const lobjSchema = new mongoose.Schema({
         required:       true
     },
     desc:               String,
+    lobjID:{
+        type:           String,
+        default:        () => Math.random().toString(35).substr(2,10),
+        unique:         true,
+    },
     courseID:{
         type:           String,
         required:       true,
@@ -34,7 +39,6 @@ const lobjSchema = new mongoose.Schema({
 
 },{
     timestamps:          true,
-    // toObject:         {virtuals:true},
     toJSON:              {virtuals:true},
 });
 
