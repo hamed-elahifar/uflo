@@ -4,11 +4,12 @@ const router         = require('express').Router()
 
   ,   Joi            = require('@hapi/joi')
   ,   multer         = require('multer')
-
-  ,  {sysAdmin}      = require('../middleware/sysRoles')
-  ,   auth           = require('../middleware/auth')
   ,   path           = require('path')
   ,   fs             = require('fs')
+  
+  ,  {sysAdmin}      = require('../middleware/sysRoles')
+  ,   auth           = require('../middleware/auth')
+
 
 router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
@@ -155,7 +156,7 @@ const upload      = multer({storage,fileFilter,limits}).array('upload',10);
 router.post('/upload/:courseID',[auth],async(req,res)=>{
 
     const course = await Course.findOne({courseID:req.params.courseID})
-    if (!course) return next({status:404,msg:''})
+    if (!course) return next({status:404,msg:'course not found'})
 
     upload(req,res,(err) => {
 
@@ -168,7 +169,7 @@ router.post('/upload/:courseID',[auth],async(req,res)=>{
 
         // Move files from ./upload to ./upload/courseID
         for (file of req.files){
-            console.log(file)
+            // console.log(file)
             fs.rename(path.join(__dirname,'..','upload',file.filename),
                       path.join(__dirname,'..','upload',req.params.courseID,file.filename), 
                       (err) => {

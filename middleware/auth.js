@@ -26,6 +26,7 @@ module.exports  = async function (req, res, next) {
         req.user        = await User.findOne({userID:req.userinfo.userID})
     }
     catch (ex) {
+        console.log(ex)
         return next({status:401,msg:'Unauthorized!, invalid token'})
     }
 

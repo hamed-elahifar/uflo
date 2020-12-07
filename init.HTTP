@@ -1,8 +1,8 @@
 @Server 		= http://127.0.0.1:3000
 # @Server 		= http://46.101.220.73:3000
 @contentType 	= application/json
-@token			= {{login.response.headers.token}}
-
+# @token			= {{login.response.headers.token}}
+@token          = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiIxMTgxMjgyOTU2MjcxMDczMjQwNzIiLCJlbWFpbCI6ImhhbWVkLmVsYWhpZmFyQGdtYWlsLmNvbSIsImZpcnN0bmFtZSI6IkhhbWVkIiwibGFzdG5hbWUiOiJFbGFoaUZhciIsImlhdCI6MTYwNzM2MDI2MiwiZXhwIjoxNjA3OTY1MDYyfQ.A_LCawGAeOmyKu28wbCA0XWgYseH4Y8QoppSkXpQShI
 ### Health
 POST {{Server}}/health
 
@@ -15,8 +15,8 @@ Content-Type: 	{{contentType}}
 	"username": "hamed",
 	"password": "123"
 }
-### get-myInfo
-POST {{Server}}/users/get-myinfo
+### me
+POST {{Server}}/users/me
 Content-Type: 	{{contentType}}
 token: 			{{token}}
 
@@ -30,4 +30,68 @@ token: 			{{token}}
 
 {
 
+}
+### create course
+POST {{Server}}/courses/add
+Content-Type: 	{{contentType}}
+token: 			{{token}}
+
+{
+    "title":"Course A",
+    "desc":"this is A course",
+    "professorID":"118128295627107324072",
+    "startDate":"",
+    "endDate":"",
+    "syllabus":"ABC"
+}
+### create chapter
+POST {{Server}}/chapters/add
+Content-Type: 	{{contentType}}
+token: 			{{token}}
+
+{
+    "title": "chapter B",
+    "desc": "BB",
+    "order":    "0",
+    "courseID": "lww13n"
+}
+### create lesson
+POST {{Server}}/lessons/add
+Content-Type: 	{{contentType}}
+token: 			{{token}}
+
+{
+    "title":"A",
+    "desc":"aa",
+    "chapterID":"79fsianc0r",
+    "order":"0"
+}
+### create lobj
+POST {{Server}}/lobj/add
+Content-Type: 	{{contentType}}
+token: 			{{token}}
+
+{
+    "title":"A",
+    "desc":"aa",
+    "lessonID":"8nvu5n12i6",
+    "order":"0"
+}
+### create frame
+POST {{Server}}/frames/add
+Content-Type: 	{{contentType}}
+token: 			{{token}}
+
+{
+    "title": "frame A",
+    "desc": "AA",
+    "lobjID": "10yhl5cbsv",
+    "order": "1",
+    "content": [
+        {
+            "order": "1",
+            "type": "table",
+            "html": "<><>"
+        }
+    ]
 }

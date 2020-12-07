@@ -10,8 +10,6 @@ const express                   = require('express')
   ,   {passport}                = require('../services/passport')
   ,   cookieSession             = require('cookie-session')
 
-
-
 module.exports = function (app) {
 
     app.disable('x-powered-by');
@@ -102,6 +100,7 @@ module.exports = function (app) {
     app.use('/lessons',     require('../routes/lesson'))
     app.use('/chapters',    require('../routes/chapter'))
     app.use('/lobj',        require('../routes/lobj'))
+    app.use('/frames',      require('../routes/frames'))
     
     app.use('*',            require('../middleware/response'))
     app.use(                require('../middleware/error'))

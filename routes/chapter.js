@@ -52,7 +52,7 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {title,desc,startDate,order,courseID} = req.body
 
     const course = await Course.findOne({courseID})
-    if (!course) return next({msg:'course not found'})
+    if (!course) return next({status:404,msg:'course not found'})
 
     const chapter = new Chapter({title,desc,startDate,order,courseID})
 

@@ -9,8 +9,9 @@ const router            = require('express').Router()
   ,  {sysAdmin}         = require('../middleware/sysRoles')
   ,   auth              = require('../middleware/auth')
 
-router.post('/list',async(req,res,next)=>{
+router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
+        
         lessonID:   Joi.string().optional(),
 
         token:      Joi.any().optional().allow('',null)
@@ -49,7 +50,7 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {title,desc,lessonID,order,startDate} = req.body
 
     const lesson = await Lesson.findOne({lessonID})
-    if (!course) return next({status:404,msg:'course not found'})
+    if (!lesson) return next({status:404,msg:'course not found'})
 
     const chapter = await Chapter.findOne({chapterID:lesson.chapterID})
     if (!chapter) return next({status:404,msg:'chapter not found'})
@@ -75,7 +76,6 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     return next();
 });
-// @TODO
 router.post('/update',[auth],async(req,res,next)=>{
 
     const schema  = Joi.array().items(
@@ -85,7 +85,7 @@ router.post('/update',[auth],async(req,res,next)=>{
             lessonID:           Joi.string().required(),
             title:              Joi.string().required(),
             desc:               Joi.string().required(),
-            chapterID:          Joi.string().required(),
+            lobjID:             Joi.string().required(),
             order:              Joi.number().required(),
             startDate:          Joi.string().optional().allow(null,''),
 
@@ -100,24 +100,27 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     for (item of req.body){
 
-        const {lessonID,title,desc,chapterID,order,startDate} = item
+        const {lessonID,title,desc,lobjID,order,startDate} = item
+
+        const lobj = await Lobj.findOne({lobjID})
+        if (!lobj) return next({status:404,msg:'lobj not found'})
     
-        const lesson = await Lesson.findOne({lessonID})
+        const lesson = await Lesson.findOne({lessonID:lobj.lessonID}).lean()
         if (!lesson) return next({status:404,msg:'lesson not found'})
         
-        const chapter = await Chapter.findOne({chapterID})
+        const chapter = await Chapter.findOne({chapterID:lesson.chapterID}).lean()
         if (!chapter) return next({status:404,msg:'chapter not found'})
     
-        const course = await Course.findOne({courseID:chapter.courseID})
+        const course = await Course.findOne({courseID:chapter.courseID}).lean()
         if (!course) return next({status:404,msg:'course not found'})
     
-        lesson.title      = title     ? title     : lesson.title
-        lesson.desc       = desc      ? desc      : lesson.desc
-        lesson.chapterID  = chapterID ? chapterID : lesson.chapterID
-        lesson.order      = order     ? order     : lesson.order
-        lesson.startDate  = startDate ? startDate : lesson.startDate
+        lobj.title      = title     ? title     : lobj.title
+        lobj.desc       = desc      ? desc      : lobj.desc
+        lobj.lessonID   = lessonID  ? lessonID  : lobj.lessonID
+        lobj.order      = order     ? order     : lobj.order
+        lobj.startDate  = startDate ? startDate : lobj.startDate
 
-        const [err,result] = await tojs(lesson.save())
+        const [err,result] = await tojs(lobj.save())
 
         if (err) arrayOfErrors.push(err)
 
