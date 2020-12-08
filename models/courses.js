@@ -23,6 +23,10 @@ const courseSchema = new mongoose.Schema({
         ref:            'users',
         required:       true,
     },
+    TAIDs:{
+        type:           [String],
+        ref:            'users',
+    },
     startDate:{
         type:           Date,
         default:        Date.now
@@ -40,7 +44,11 @@ courseSchema.virtual('professor',{
     ref:             'users',
     localField:      'professorID',
     foreignField:    'userID',
-    justOne:          true,
+});
+courseSchema.virtual('TA',{
+    ref:             'users',
+    localField:      'TAIDs',
+    foreignField:    'userID',
 });
 
 const   Course = mongoDB.model('courses',courseSchema,'courses');

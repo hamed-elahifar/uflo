@@ -20,7 +20,7 @@ router.post('/list',async(req,res,next)=>{
 
     // const {} = req.body
 
-    const [err,result] = await tojs(Course.find().select('-id -_id -__v').populate())
+    const [err,result] = await tojs(Course.find().select('-id -_id -__v').populate(['TA','professor']))
 
     if (err) return next({status:500,msg:'Error',error:err})
 
@@ -80,7 +80,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     const {courseID,title,desc,professorID,startDate,endDate,syllabus} = req.body
 
-    const course = await courseID.findOne({courseID})
+    const course = await Course.findOne({courseID})
     if (!course) return next({msg:'course not found'})
 
     const prof = await User.findOne({userID:professorID,role:'professor'})
@@ -145,7 +145,39 @@ router.post('/register-student',[auth],async(req,res,next)=>{
 
 })
 
-const storage = multer.diskStorage({
+router.post('/add-ta',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+
+        TAEmail:    Joi.string().required(),
+        courseID:   Joi.string().required(),
+
+        token:      Joi.any().allow(null,'').optional(),  
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {TAEmail,courseID} = req.body
+
+    const course = await Course.findOne({courseID})
+    if (!course) return next({msg:'course not found'})
+
+    const ta = await User.findOne({email:TAEmail})
+    if (!ta) return next({msg:'TA not found'})
+
+    const [err,result] = await tojs(Course.updateOne(
+        {courseID},
+        {$addToSet:{TAIDs:ta.userID}}
+    ))
+
+    if (err) return next({status:500,msg:'faild'})
+
+    res.payload = {status:201,msg:`User ${ta.firstname} ${ta.lastname} added to ${course.title}`}
+
+    return next();
+
+})
+
+const storage     = multer.diskStorage({
     destination:    (req,file,cb)=>{cb(null,'upload')},
     filename:       (req,file,cb)=>{cb(null, file.originalname)}
 });
