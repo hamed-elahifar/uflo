@@ -25,7 +25,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     if (lessonID) query = {...query,lessonID}
 
-    const [err,result] = await tojs(Lobj.find(query))
+    const [err,result] = await tojs(Lesson.find(query))
 
     res.payload = result
     

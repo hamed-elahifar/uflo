@@ -29,7 +29,7 @@ router.post('/list',async(req,res,next)=>{
 
     if (lobjID) query = {...query,lobjID}
 
-    const [err,result] = await tojs(Frame.find(query))
+    const [err,result] = await tojs(Lobj.find(query))
 
     res.payload = result
     
