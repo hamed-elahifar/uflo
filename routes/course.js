@@ -13,6 +13,7 @@ const router         = require('express').Router()
 
 router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
+        
         token:      Joi.any().allow(null,'').optional(),  
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});

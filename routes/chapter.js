@@ -10,11 +10,7 @@ const router                    = require('express').Router()
 router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
 
-        // title:      Joi.string().required(),
-        // desc:       Joi.string().required(),
-        // startDate:  Joi.date()  .required(),
-        // order:      Joi.number().required(),
-        courseID:   Joi.string().optional(),
+        courseID:   Joi.string().required(),
 
         token:      Joi.any().optional().allow('',null)
 
@@ -22,11 +18,9 @@ router.post('/list',async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,startDate,order,courseID} = req.body
+    const {courseID} = req.body
 
-    let query = {}
-
-    if (courseID) query = {...query,courseID}
+    let query = {courseID}
 
     const [err,result] = await tojs(Chapter.find(query))
 

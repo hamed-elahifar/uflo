@@ -11,7 +11,7 @@ const router            = require('express').Router()
 router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
         
-        chapterID:   Joi.string().optional(),
+        chapterID:   Joi.string().required(),
 
         token:      Joi.any().optional().allow('',null)
     })
@@ -20,9 +20,7 @@ router.post('/list',async(req,res,next)=>{
 
     const {chapterID} = req.body
 
-    let query = {}
-
-    if (chapterID) query = {...query,chapterID}
+    let query = {chapterID}
 
     const [err,result] = await tojs(Lesson.find(query))
 

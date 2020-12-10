@@ -16,7 +16,7 @@ const router            = require('express').Router()
 router.post('/list',async(req,res,next)=>{
     const schema  = Joi.object({
         
-        lobjID:     Joi.string().optional(),
+        lobjID:     Joi.string().required(),
 
         token:      Joi.any().optional().allow('',null)
     })
@@ -25,9 +25,7 @@ router.post('/list',async(req,res,next)=>{
 
     const {lobjID} = req.body
 
-    let query = {}
-
-    if (lobjID) query = {...query,lobjID}
+    let query = {lobjID}
 
     const [err,result] = await tojs(Frame.find(query))
 
