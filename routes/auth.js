@@ -188,13 +188,7 @@ router.get ('/google/callback',
     }
 ))
 
-// router.get('/google-auth-test',auth,(req,res,next)=>{
-//     console.log(req.user)
-//     res.payload = req.user
-//     return next();
-// })
-
-router.get('/google-jwt',async(req,res,next)=>{
+router.get('/google-jwt',[auth],async(req,res,next)=>{
 
     if (!req.user) return next({status:401,msg:'Unauthorized'});
 

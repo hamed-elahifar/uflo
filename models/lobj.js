@@ -1,6 +1,9 @@
 const mongoose     = require('mongoose')
 const {mongoDB}    = require('../startup/mongodb')
 
+  ,   {Frame}      = require('../models/frames')
+
+
 const lobjSchema = new mongoose.Schema({
 
     title:{
@@ -59,6 +62,17 @@ lobjSchema.virtual('lesson',{
     localField:    'lessonID',
     foreignField:  'lessonID',
     justOne:        true,
+});
+
+lobjSchema.pre('findOneAndDelete', function(next) {
+    Frame.deleteMany(this._conditions)
+        .then (() => {
+            next()
+        })
+        .catch(ex => {
+            errorLog(ex)
+            next()
+        })
 });
 
 const   Lobj = mongoDB.model('lobjs',lobjSchema,'lobjs');

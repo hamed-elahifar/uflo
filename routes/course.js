@@ -10,8 +10,7 @@ const router         = require('express').Router()
   ,  {sysAdmin}      = require('../middleware/sysRoles')
   ,   auth           = require('../middleware/auth')
 
-
-router.post('/list',async(req,res,next)=>{
+router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
         
         token:      Joi.any().allow(null,'').optional(),  
@@ -26,6 +25,23 @@ router.post('/list',async(req,res,next)=>{
     if (err) return next({status:500,msg:'Error',error:err})
 
     res.payload = result
+    
+    return next();
+});
+router.post('/students',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+
+        courseID:       Joi.string().required(),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {courseID} = req.body
+
+    const students = await User.find({courseIDs:courseID})
+
+    res.payload = students
     
     return next();
 });
@@ -116,6 +132,22 @@ router.post('/delete',[auth],async(req,res,next)=>{
     const course = await Course.findOneAndDelete({courseID})
     if (!course) return next({msg:'course not found'})
 
+    const dir = path.join('upload',courseID)
+    fs.rmdir(dir,{recursive:true}, (err) => {
+        if (err) errorLog(err)
+    });
+
+    const students = await User.find({courseIDs:courseID})
+
+    for (student of students) {
+        User.updateOne(
+            {userID:student.userID},
+            {$pull:{courseIDs:courseID}}
+        )
+        .then ()
+        .catch()
+    }
+
     res.payload = 'course deleted successfully'
     return next()
 });
@@ -145,7 +177,6 @@ router.post('/register-student',[auth],async(req,res,next)=>{
     return next();
 
 })
-
 router.post('/add-ta',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 

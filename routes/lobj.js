@@ -48,7 +48,7 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {title,desc,lessonID,order,startDate} = req.body
 
     const lesson = await Lesson.findOne({lessonID})
-    if (!lesson) return next({status:404,msg:'course not found'})
+    if (!lesson) return next({status:404,msg:'lesson not found'})
 
     const chapter = await Chapter.findOne({chapterID:lesson.chapterID})
     if (!chapter) return next({status:404,msg:'chapter not found'})
@@ -141,8 +141,8 @@ router.post('/delete',[auth],async(req,res,next)=>{
 
     const {lobjID} = req.body
 
-    const lesson = await Lobj.findOneAndDelete({lobjID})
-    if (!lesson) return next({status:404,msg:'lobj not found'})
+    const lobj = await Lobj.findOneAndDelete({lobjID})
+    if (!lobj) return next({status:404,msg:'lobj not found'})
 
     res.payload = 'successful'
     return next()

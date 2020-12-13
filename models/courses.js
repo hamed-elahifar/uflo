@@ -1,5 +1,10 @@
-const mongoose     = require('mongoose')
-const {mongoDB}    = require('../startup/mongodb')
+const mongoose      = require('mongoose')
+const {mongoDB}     = require('../startup/mongodb');
+
+const {Chapter}     = require('./chapter');
+const {Lesson}      = require('./lessons')
+const {Lobj}        = require('./lobj')
+const {Frame}       = require('./frames')
 
 const courseSchema = new mongoose.Schema({
     
@@ -49,6 +54,31 @@ courseSchema.virtual('TA',{
     ref:             'users',
     localField:      'TAIDs',
     foreignField:    'userID',
+});
+
+courseSchema.pre('findOneAndDelete', function(next) {
+    Chapter.deleteMany(this._conditions)
+        .then (() => {})
+        .catch(ex => {
+            errorLog(ex)
+        })
+    Lesson.deleteMany(this._conditions)
+        .then (() => {})
+        .catch(ex => {
+            errorLog(ex)
+        })
+    Lobj.deleteMany(this._conditions)
+        .then (() => {})
+        .catch(ex => {
+            errorLog(ex)
+        })
+    Frame.deleteMany(this._conditions)
+        .then (() => {})
+        .catch(ex => {
+            errorLog(ex)
+        })
+
+    next();
 });
 
 const   Course = mongoDB.model('courses',courseSchema,'courses');

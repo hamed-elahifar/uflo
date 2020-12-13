@@ -13,7 +13,7 @@ const router            = require('express').Router()
   ,  {sysAdmin}         = require('../middleware/sysRoles')
   ,   auth              = require('../middleware/auth')
 
-router.post('/list',async(req,res,next)=>{
+router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
         
         lobjID:     Joi.string().required(),
@@ -166,7 +166,7 @@ router.post('/delete',[auth],async(req,res,next)=>{
     const frame = await Frame.findOneAndDelete({frameID})
     if (!frame) return next({status:404,msg:'frame not found'})
 
-    res.payload = 'successful'
+    res.payload = {msg:'successful'}
     return next()
 });
 
