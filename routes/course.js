@@ -12,15 +12,22 @@ const router         = require('express').Router()
 
 router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
+
+        courseID:   Joi.string().optional().allow('',null),
         
-        token:      Joi.any().allow(null,'').optional(),  
+        token:      Joi.any().allow(null,'').optional(),
+
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    // const {} = req.body
+    let query = {}
 
-    const [err,result] = await tojs(Course.find().select('-id -_id -__v').populate(['TA','professor']))
+    const {courseID} = req.body
+
+    if (courseID) query = {...query,courseID}
+
+    const [err,result] = await tojs(Course.find(query).select('-id -_id -__v +passcode').populate(['TA','professor']))
 
     if (err) return next({status:500,msg:'Error',error:err})
 
