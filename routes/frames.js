@@ -43,7 +43,7 @@ router.post('/add',[auth],async(req,res,next)=>{
         order:              Joi.number().required(),
         content:            Joi.array().items(Joi.object({
             order:          Joi.number().required(),
-            type:           Joi.string().valid('description','quote','definition','table','question'),
+            type:           Joi.string().valid('description','quote','definition','table','question','function'),
             html:           Joi.string().required(),
         })),
         voice:              Joi.string().optional().allow(null,''),

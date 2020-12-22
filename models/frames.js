@@ -8,7 +8,7 @@ const contentSchema = new mongoose.Schema({
     },
     type:{
         type:       String,
-        enum:       ['description','quote','definition','table','question'],
+        enum:       ['description','quote','definition','table','question','function'],
     },
     html:           String,
 })
@@ -51,6 +51,10 @@ const frameSchema  = new mongoose.Schema({
     },
     content:            [contentSchema],
     voice:              String,
+    sticky:[{
+        sticky:         Boolean,
+        height:         String,
+    }],
 
 },{
     timestamps:          true,

@@ -101,6 +101,7 @@ module.exports = function (app) {
     app.use('/chapters',    require('../routes/chapter'))
     app.use('/lobj',        require('../routes/lobj'))
     app.use('/frames',      require('../routes/frames'))
+    app.use('/annotation',  require('../routes/annotations'))
     
     app.use('*',            require('../middleware/response'))
     app.use(                require('../middleware/error'))
