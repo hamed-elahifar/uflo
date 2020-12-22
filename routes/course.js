@@ -54,6 +54,35 @@ router.post('/students',[auth],async(req,res,next)=>{
     
     return next();
 });
+router.post('/files',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+
+        courseID:       Joi.string().required(),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {courseID} = req.body
+
+  const directory = path.join(__dirname, '..', 'upload', courseID)
+    if (!fs.existsSync(directory)) {
+      res.payload = []
+      return next()
+    }
+    
+    const formatFilePath = (file) => ({
+      name: file,
+      path: `${req.protocol}://${req.get('host')}/${courseID}/${encodeURIComponent(file)}`
+    })
+
+    fs.readdir(directory, (err, files) => {
+      res.payload = files.map(formatFilePath)
+      return next();
+    });
+
+    
+});
 router.post('/add',[auth],async(req,res,next)=>{
 
     const schema  = Joi.object({
@@ -268,13 +297,17 @@ router.post('/upload/:courseID',[auth],async(req,res)=>{
     const course = await Course.findOne({courseID:req.params.courseID})
     if (!course) return next({status:404,msg:'course not found'})
 
+
+    // Note: If there's an error like [Error: ENOENT: no such file or directory, upload/FILENAME]
+    // Go ahead and create an empty directory upload/ under project root dir
+
     upload(req,res,(err) => {
 
         if (!req.files) return res.status(500).json({msg:'no file uploaded'})
-        if (err)        return res.status(500).json({msg:'upload faild',error:err});
+        
+        if (err)        return res.status(500).json({msg:'upload failed',error:err});
         
         const directory = path.join(__dirname,'..','upload',req.params.courseID)
-        
         if (!fs.existsSync(directory)){fs.mkdirSync(directory)}
 
         // Move files from ./upload to ./upload/courseID
@@ -287,6 +320,7 @@ router.post('/upload/:courseID',[auth],async(req,res)=>{
                       }
             )
         }
+
         // update path
         for (file of req.files){
             file.path = path.join('upload',req.params.courseID,file.filename)

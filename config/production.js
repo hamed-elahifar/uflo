@@ -44,4 +44,5 @@ module.exports = {
     "logLevelToFile":               "access",
     "logLevelToDB":                 "error",
     "debug":                        true,
+    "clientUrl":                    'http://api.uflo.io',
 }

@@ -10,12 +10,25 @@ const express                   = require('express')
   ,   {passport}                = require('../services/passport')
   ,   cookieSession             = require('cookie-session')
 
+
+const whitelist = [getConfig('clientUrl')];
+
+
 module.exports = function (app) {
 
     app.disable('x-powered-by');
     app.enable ('trust proxy' );
 
-    app.use(cors());
+    app.use(cors({
+      origin: function (origin, callback) {
+        if (whitelist.indexOf(origin) !== -1 || !origin) {
+          callback(null, true)
+        } else {
+          callback(new Error('Not allowed by CORS'))
+        }
+      },
+      credentials: true // e.g., enable fetching 'http://localhost:3000/users/me' from origin 'http://localhost:8080' 
+    }));
 
     app.use(express.urlencoded({extended:true}));
     app.use(express.json({limit:'100kb'}));

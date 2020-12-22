@@ -22,7 +22,7 @@ require('./startup/routes')(app);
 
 const port   = process.env.PORT || getConfig('PORT') || 3000;
 const server = app.listen(port,() => {
-    console.info('uFlo Starts On Port 3000')
+    console.info(`uFlo Starts On Port ${port}`)
 })
 
 module.exports = server;

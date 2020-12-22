@@ -1,12 +1,12 @@
-const router            = require('express').Router()
-  ,   {User}            = require('../models/users')
+const router = require('express').Router()
+  , { User } = require('../models/users')
 
-  ,   bcrypt            = require('bcryptjs')
-  ,   Joi               = require('@hapi/joi')
+  , bcrypt = require('bcryptjs')
+  , Joi = require('@hapi/joi')
 
-  ,  {sysAdmin}         = require('../middleware/sysRoles')
-  ,   auth              = require('../middleware/auth')
-  ,  {passport}         = require('../services/passport')
+  , { sysAdmin } = require('../middleware/sysRoles')
+  , auth = require('../middleware/auth')
+  , { passport } = require('../services/passport')
 
 // router.post('/sign-up',async(req,res,next)=>{
 //   const schema  = Joi.object({
@@ -36,7 +36,7 @@ const router            = require('express').Router()
 //   university = email.split('@')[1].split('.')
 //   university.pop()
 //   university = university.join('.')
-  
+
 //   user = new User({
 //       username,password,firstname,lastname,email,
 //       university
@@ -51,7 +51,7 @@ const router            = require('express').Router()
 //   result.__v      = undefined;
 
 //   res.payload = result
-  
+
 //   return next();
 // });
 // router.post('/login',async(req,res,next) => {
@@ -68,7 +68,7 @@ const router            = require('express').Router()
 //   if (!user){
 //       return next({status:400,msg:'incorrect username or password'});
 //   }
-  
+
 //   const validPassword = await user.validatePassword(password)
 //   if (!validPassword) {
 //       return next({status:400,msg:'incorrect username or password'})
@@ -94,7 +94,7 @@ const router            = require('express').Router()
 //   const token = user.generateAuthToken();  
 //   res.header('token',token);
 //   res.payload = res.payload ? Object.assign(res.payload,{token}) : {token}
-  
+
 //   return next();
 // });
 // router.post('/logout',[auth],async(req,res,next) => {
@@ -136,7 +136,7 @@ const router            = require('express').Router()
 //   // const samePassword = (oldPassword == newPassword)
 //   const samePassword = await bcrypt.compare(newPassword, user.password);
 //   if (samePassword) return next({status:400,msg:'new password should not be same as old password'})
-  
+
 //   user.password                     = newPassword;
 
 //   user.mustChangePassword = false;
@@ -178,26 +178,26 @@ const router            = require('express').Router()
 //   return next();
 // });
 
-router.get ('/google',passport.authenticate('google',{scope:['email','profile']}))
+router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
 
-router.get ('/google/callback',
-    passport.authenticate('google',{
-        successRedirect:'/',
-        failureRedirect:'/',
-        // session: false
-    }
-))
+router.get('/google/callback',
+  passport.authenticate('google', {
+    successRedirect: environment === 'production' ? '/' : getConfig('clientUrl'),
+    failureRedirect: environment === 'production' ? '/' : getConfig('clientUrl'),
+    // session: false
+  }
+  ))
 
-router.get('/google-jwt',[auth],async(req,res,next)=>{
+router.get('/google-jwt', [auth], async (req, res, next) => {
 
-    if (!req.user) return next({status:401,msg:'Unauthorized'});
+  if (!req.user) return next({ status: 401, msg: 'Unauthorized' });
 
-    const user  = await User.findOne({userID:req.user.userID})
+  const user = await User.findOne({ userID: req.user.userID })
 
-    const token = user.generateAuthToken()
+  const token = user.generateAuthToken()
 
-    res.payload = token
-    return next();
+  res.payload = token
+  return next();
 })
 
 module.exports = router;
