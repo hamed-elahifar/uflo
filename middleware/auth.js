@@ -30,7 +30,10 @@ module.exports  = async function (req, res, next) {
         return next({status:401,msg:'Unauthorized!, invalid token'})
     }
 
-    req.user.ip = ip
+
+    if (req.user) { // Added for the default JWT token in front-end
+      req.user.ip = ip
+    }
 
     return next();
 };
