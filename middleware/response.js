@@ -17,6 +17,7 @@ module.exports = async(req,res,next)=>{
     resp.msg            = res.payload.msg  || ''
     resp.data           = res.payload.data || res.payload
 
+
     resp.data.status    = undefined
     resp.data.msg       = undefined
 

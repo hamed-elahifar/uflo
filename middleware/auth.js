@@ -7,6 +7,10 @@ module.exports  = async function (req, res, next) {
     
     // if user came from cookie-session
     if (req.user) {
+
+        // Issue a permant JWT for development 
+        // const token = await jwt.sign({ userID: req.user.id }, getConfig('jwt.token'), { expiresIn: '9999 years'});
+        // console.log(token)
         req.user.ip  = ip
         req.userinfo = req.user
         return next();

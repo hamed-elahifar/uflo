@@ -186,7 +186,7 @@ router.post('/upload/:frameID',[auth],async(req,res)=>{
     upload(req,res,(err) => {
 
         if (!req.files) return res.status(500).json({msg:'no file uploaded'})
-        if (err)        return res.status(500).json({msg:'upload faild',error:err});
+        if (err)        return res.status(500).json({msg:'upload failed',error:err});
         
         let directory = path.join(__dirname,'..','upload',frame.courseID)
         if (!fs.existsSync(directory)){fs.mkdirSync(directory)}
