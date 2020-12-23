@@ -162,7 +162,7 @@ router.post('/full',[auth],async(req,res,next)=>{
 
     let query = {lessonID}
 
-    const [err,result] = await tojs(Lobj.find(query).lean())
+    let [err,result] = await tojs(Lobj.find(query).lean())
 
     result = await Promise.all(
         result.map(async lobj => {
