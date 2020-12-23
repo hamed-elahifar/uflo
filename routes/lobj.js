@@ -3,6 +3,7 @@ const router            = require('express').Router()
   ,   {Chapter}         = require('../models/chapter')
   ,   {Lesson}          = require('../models/lessons')
   ,   {Lobj}            = require('../models/lobj')
+  ,   {Frame}           = require('../models/frames')
 
   ,   Joi               = require('@hapi/joi')
 
@@ -163,9 +164,11 @@ router.post('/full',[auth],async(req,res,next)=>{
 
     const [err,result] = await tojs(Lobj.find(query).lean())
 
-    for (lobj of result) {
-        console.log(lobj)
-    }
+    Promise.all(
+        result.map( lobj => {
+            return lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
+        })
+    )
 
     res.payload = result
     
