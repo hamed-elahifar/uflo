@@ -166,7 +166,7 @@ router.post('/full',[auth],async(req,res,next)=>{
 
     await Promise.all(
         result.map(async lobj => {
-            return lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
+            lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
         })
     )
 
