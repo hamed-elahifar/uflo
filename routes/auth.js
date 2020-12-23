@@ -1,12 +1,12 @@
-const router = require('express').Router()
-  , { User } = require('../models/users')
+const router      = require('express').Router()
+  ,  {User}       = require('../models/users')
 
-  , bcrypt = require('bcryptjs')
-  , Joi = require('@hapi/joi')
+  ,   bcrypt      = require('bcryptjs')
+  ,   Joi         = require('@hapi/joi')
 
-  , { sysAdmin } = require('../middleware/sysRoles')
-  , auth = require('../middleware/auth')
-  , { passport } = require('../services/passport')
+  ,  { sysAdmin } = require('../middleware/sysRoles')
+  ,  auth         = require('../middleware/auth')
+  , { passport }  = require('../services/passport')
 
 // router.post('/sign-up',async(req,res,next)=>{
 //   const schema  = Joi.object({
@@ -186,9 +186,9 @@ router.get('/google/callback',
     failureRedirect: environment === 'production' ? '/' : getConfig('clientUrl'),
     // session: false
   }
-  ))
+))
 
-router.get('/google-jwt', [auth], async (req, res, next) => {
+router.get('/google-jwt', async (req, res, next) => {
 
   if (!req.user) return next({ status: 401, msg: 'Unauthorized' });
 

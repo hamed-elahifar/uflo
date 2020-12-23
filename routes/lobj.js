@@ -147,5 +147,28 @@ router.post('/delete',[auth],async(req,res,next)=>{
     res.payload = 'successful'
     return next()
 });
+router.post('/full',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+        
+        lessonID:   Joi.string().required(),
 
+        token:      Joi.any().optional().allow('',null)
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {lessonID} = req.body
+
+    let query = {lessonID}
+
+    const [err,result] = await tojs(Lobj.find(query).lean())
+
+    for (lobj of result) {
+        console.log(lobj)
+    }
+
+    res.payload = result
+    
+    return next();
+});
 module.exports = router;

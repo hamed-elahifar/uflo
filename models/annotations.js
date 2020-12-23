@@ -41,9 +41,9 @@ const annotationSchema  = new mongoose.Schema({
         userID:         String,
         solution:       Boolean,
     },
-    lobjID:{
+    lessonID:{
         type:           String,
-        ref:            'lobjs'
+        ref:            'lessons'
     }
 
 },{

@@ -45,5 +45,5 @@ module.exports = {
     "logLevelToFile":               "access",
     "logLevelToDB":                 "error",
     "debug":                        true,
-    'clientUrl':                    'http://localhost:8080'
+    'clientUrl':                    'http://localhost:3000/auth/google/callback'
 }
