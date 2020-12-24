@@ -9,6 +9,7 @@ const express                   = require('express')
   ,   JSONValidation            = require('../middleware/JSONValidation')
   ,   {passport}                = require('../services/passport')
   ,   cookieSession             = require('cookie-session')
+  ,   bodyParser                = require('body-parser')
 
 
 const whitelist = [getConfig('clientUrl')];
@@ -18,6 +19,13 @@ module.exports = function (app) {
 
     app.disable('x-powered-by');
     app.enable ('trust proxy' );
+
+    app.use(bodyParser.urlencoded({ extended: true }))
+    app.use(bodyParser.json({limit:'1000kb'}))
+
+    // app.use(express.urlencoded({extended:true}));
+    // app.use(express.json({limit:'100kb'}));
+    app.use(JSONValidation);
 
     app.use(cors({
       origin: function (origin, callback) {
@@ -30,9 +38,7 @@ module.exports = function (app) {
       credentials: true // e.g., enable fetching 'http://localhost:3000/users/me' from origin 'http://localhost:8080' 
     }));
 
-    app.use(express.urlencoded({extended:true}));
-    app.use(express.json({limit:'100kb'}));
-    app.use(JSONValidation);
+
     app.use(express.static('static'));
     app.use(express.static('upload'));
 

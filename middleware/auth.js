@@ -15,7 +15,7 @@ module.exports  = async function (req, res, next) {
         req.userinfo = req.user
         return next();
     }
-   
+
     let token = req.header('token') ? req.header('token') :   
                 req.body.token      ? req.body.token      : null
 
@@ -36,7 +36,7 @@ module.exports  = async function (req, res, next) {
 
 
     if (req.user) { // Added for the default JWT token in front-end
-      req.user.ip = ip
+        req.user.ip = ip
     }
 
     return next();
