@@ -1,3 +1,5 @@
+const { Lesson } = require('../models/lessons');
+
 const router                    = require('express').Router()
   ,   {Chapter}                 = require('../models/chapter')
   ,   {Course}                  = require('../models/courses')
@@ -115,6 +117,33 @@ router.post('/delete',[auth],async(req,res,next)=>{
 
     res.payload = 'chapter deleted successfully'
     return next()
+});
+router.post('/full',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+        
+        courseID:   Joi.string().required(),
+
+        token:      Joi.any().optional().allow('',null)
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {courseID} = req.body
+
+    let query = {courseID}
+
+    let [err,result] = await tojs(Chapter.find(query).lean())
+
+    let full = await Promise.all(
+        result.map(async chapter => {
+            chapter.lesson = await Lesson.find({lessonID:chapter.lessonID}).lean();
+            return chapter
+        })
+    )
+
+    res.payload = full
+    
+    return next();
 });
 module.exports = router;
 
