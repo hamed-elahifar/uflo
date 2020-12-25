@@ -13,7 +13,7 @@ const data = {
     }
 }
 
-app.all('/:item/:mode?',(req,res)=>{
+app.get('/:item/:mode?',(req,res)=>{
 
     let {item,mode} = req.params
     if (!mode) mode = 'soft';
