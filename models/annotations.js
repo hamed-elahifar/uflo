@@ -28,14 +28,20 @@ const annotationSchema  = new mongoose.Schema({
         type:           String,
         ref:            'users'
     },
-    whoToAsk:{
+    whomToAsk:{
         type:           String,
         enum:           ['professor','TA','everyone']
     },
-    likes:              Number,
+    likes:{
+        type:           Number,
+        default:        0,
+    },
     descLength:         Number,
     anntLength:         Number,
-    solved:             Boolean,
+    solved:{
+        type:           Boolean,
+        default:        false
+    },
     reply:{
         replyText:      String,
         userID:         String,

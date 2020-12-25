@@ -1,5 +1,6 @@
 const router            = require('express').Router()
   ,   {Annotation}      = require('../models/annotations')
+  ,   {Lesson}          = require('../models/lessons')
 
   ,   Joi               = require('@hapi/joi')
 
@@ -10,31 +11,48 @@ router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
         
         lessonID:   Joi.string().required(),
+        userID:     Joi.string().optional(),
 
         token:      Joi.any().optional().allow('',null)
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {lessonID} = req.body
+    const {lessonID,userID} = req.body
 
     let query = {lessonID}
 
-    const [err,result] = await tojs(Lobj.find(query))
+    const [err,result] = await tojs(Annotation.find(query))
 
     res.payload = result
-    
+
     return next();
 });
 router.post('/add',[auth],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
-        title:              Joi.string().required(),
         desc:               Joi.string().required(),
+        type:               Joi.string().valid('highlight','annotation','question').required(),
+        tag:                Joi.array() .items(Joi.string()),
+
+        selection:          Joi.array() .items(Joi.object({
+            frameID:        Joi.string().required(),
+            startIndex:     Joi.number().required(),
+            selectLength:   Joi.number().required(),
+            quote:          Joi.string().required(),
+        })),
+        color:              Joi.string().required(),
+        
+        whomToAsk:          Joi.string().valid('professor','TA','everyone').required(),
+
+        reply:              Joi.object({
+            replyText:      Joi.string().required(),
+            userID:         Joi.string().required(),
+            solution:       Joi.boolean(),
+        }),
+
         lessonID:           Joi.string().required(),
-        order:              Joi.number().required(),
-        startDate:          Joi.string().optional().allow(null,''),
 
         token:              Joi.any().allow(null,'').optional(),
 
@@ -42,28 +60,22 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,lessonID,order,startDate} = req.body
+    const {desc,type,tag,selection,color,whomToAsk,reply,lessonID} = req.body
 
     const lesson = await Lesson.findOne({lessonID})
     if (!lesson) return next({status:404,msg:'lesson not found'})
 
-    const chapter = await Chapter.findOne({chapterID:lesson.chapterID})
-    if (!chapter) return next({status:404,msg:'chapter not found'})
+    let anntLength = 0
+    selection.forEach(i => {anntLength += +i.selectLength})
 
-    const course = await Course.findOne({courseID:chapter.courseID})
-    if (!course) return next({status:404,msg:'course not found'})
-
-    const lobj = new Lobj({
-        title,
-        desc,
-        order,
-        startDate,
-        lessonID,
-        chapterID:  chapter.chapterID,
-        courseID:   course.courseID,
+    const annotation = new Annotation({
+        desc,type,tag,selection,color,whomToAsk,reply,lessonID,
+        anntLength,
+        userID:             req.userinfo.userID,
+        descLength:         desc.length,
     })
-
-    const [err,result] = await tojs(lobj.save())
+    
+    const [err,result] = await tojs(annotation.save())
 
     if (err) return next({status:500,msg:'faild',error:err})
 
@@ -73,76 +85,87 @@ router.post('/add',[auth],async(req,res,next)=>{
 });
 router.post('/update',[auth],async(req,res,next)=>{
 
-    const schema  = Joi.array().items(
-    
-        Joi.object({
+    const schema  = Joi.object({
 
-            lessonID:           Joi.string().required(),
-            title:              Joi.string().required(),
-            desc:               Joi.string().required(),
-            lobjID:             Joi.string().required(),
-            order:              Joi.number().required(),
-            startDate:          Joi.string().optional().allow(null,''),
+        annotationID:       Joi.string().required(),
+        desc:               Joi.string().required(),
+        type:               Joi.string().valid('highlight','annotation','question').required(),
+        tag:                Joi.array() .items(Joi.string()),
 
-            token:              Joi.any().allow(null,'').optional(),
+        selection:          Joi.array() .items(Joi.object({
+            frameID:        Joi.string().required(),
+            startIndex:     Joi.number().required(),
+            selectLength:   Joi.number().required(),
+            quote:          Joi.string().required(),
+        })),
+        color:              Joi.string().required(),
+        
+        whomToAsk:          Joi.string().valid('professor','TA','everyone').required(),
 
-        })
-    )
+        reply:              Joi.object({
+            replyText:      Joi.string().required(),
+            userID:         Joi.string().required(),
+            solution:       Joi.boolean(),
+        }),
+
+        lessonID:           Joi.string().required(),
+
+        token:              Joi.any().allow(null,'').optional(),
+
+    })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    let arrayOfErrors = []
+    const {annotationID,desc,type,tag,selection,color,whomToAsk,reply,lessonID} = req.body
 
-    for (item of req.body){
+    const annotation = await Annotation.findOne({annotationID})
+    if (!annotation) return next({status:404,msg:'Annotation not found'})
 
-        const {lessonID,title,desc,lobjID,order,startDate} = item
+    const lesson = await Lesson.findOne({lessonID})
+    if (!lesson) return next({status:404,msg:'lesson not found'})
 
-        const lobj = await Lobj.findOne({lobjID})
-        if (!lobj) return next({status:404,msg:'lobj not found'})
+    annotation.desc         = desc      ? desc      : annotation.desc
+    annotation.type         = type      ? type      : annotation.type
+    annotation.tag          = tag       ? tag       : annotation.tag
+    annotation.selection    = selection ? selection : annotation.selection
+    annotation.color        = color     ? color     : annotation.color
+    annotation.whomToAsk    = whomToAsk ? whomToAsk : annotation.whomToAsk
+    annotation.lessonID     = lessonID  ? lessonID  : annotation.lessonID
     
-        const lesson = await Lesson.findOne({lessonID:lobj.lessonID}).lean()
-        if (!lesson) return next({status:404,msg:'lesson not found'})
-        
-        const chapter = await Chapter.findOne({chapterID:lesson.chapterID}).lean()
-        if (!chapter) return next({status:404,msg:'chapter not found'})
-    
-        const course = await Course.findOne({courseID:chapter.courseID}).lean()
-        if (!course) return next({status:404,msg:'course not found'})
-    
-        lobj.title      = title     ? title     : lobj.title
-        lobj.desc       = desc      ? desc      : lobj.desc
-        lobj.lessonID   = lessonID  ? lessonID  : lobj.lessonID
-        lobj.order      = order     ? order     : lobj.order
-        lobj.startDate  = startDate ? startDate : lobj.startDate
+    annotation.descLength   = desc.length
+    anntLength = 0
+    annotation.anntLength   = selection.forEach(i => {anntLength += +i.selectLength})
 
-        const [err,result] = await tojs(lobj.save())
 
-        if (err) arrayOfErrors.push(err)
+    const [err,result] = await tojs(annotation.save())
 
-    }
+    if (err) return next({status:500,msg:'faild',error:err})
 
-    if (!arrayOfErrors.isEmpty) return next({status:500,msg:'faild',error:arrayOfErrors})
-
-    res.payload = {msg:'successful'}
+    res.payload = result
 
     return next();
 });
 router.post('/delete',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        lobjID:     Joi.string().required(),
+        annotationID:     Joi.string().required(),
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {lobjID} = req.body
+    const {annotationID} = req.body
 
-    const lobj = await Lobj.findOneAndDelete({lobjID})
-    if (!lobj) return next({status:404,msg:'lobj not found'})
+    const annotation = await Annotation.findOneAndDelete({annotationID})
+    if (!annotation) return next({status:404,msg:'Annotation not found'})
 
     res.payload = 'successful'
     return next()
 });
-
+router.post('/reply',[auth],async(req,res,next)=>{
+    // @TODO
+});
+router.post('/likes',[auth],async(req,res,next)=>{
+    // @TODO
+});
 module.exports = router;
