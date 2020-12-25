@@ -22,16 +22,16 @@ module.exports = function (app) {
 
     const whitelist = getConfig('clientURLs');
 
-    app.use(cors({
-        origin: function (origin, callback) {
-            if (whitelist.indexOf(origin) !== -1 || !origin) callback(null, true)
-            else                                             callback(new Error('Not allowed by CORS'))
+    // app.use(cors({
+    //     origin: function (origin, callback) {
+    //         if (whitelist.indexOf(origin) !== -1 || !origin) callback(null, true)
+    //         else                                             callback(new Error('Not allowed by CORS'))
             
-        },
-        credentials: true // e.g., enable fetching 'http://localhost:3000/users/me' from origin 'http://localhost:8080' 
-    }));
+    //     },
+    //     credentials: true // e.g., enable fetching 'http://localhost:3000/users/me' from origin 'http://localhost:8080' 
+    // }));
 
-    // app.use(cors())
+    app.use(cors())
 
     app.use(express.static('static'));
     app.use(express.static('upload'));
