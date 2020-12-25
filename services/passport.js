@@ -21,7 +21,6 @@ passport.use(new LocalStrategy(
     }
 ))
 
-
 var options = {
     jwtFromRequest:         ExtractJwt.fromExtractors([
 
@@ -44,7 +43,7 @@ var options = {
 
     }
 }
- 
+
 passport.use(new JwtStrategy(options,(jwt_payload,done) => {
     User.findOne({id:jwt_payload.id},(err,user) => {
         if (err) {
@@ -95,7 +94,7 @@ passport.use(new GoogleStrategy({
 passport.serializeUser((googleUserID,done) => {
     return done(null,googleUserID);
 });
-  
+
 passport.deserializeUser(async (googleUserID,done) => {
     User.findOne({userID:googleUserID})
         .then (user => done(null,user))

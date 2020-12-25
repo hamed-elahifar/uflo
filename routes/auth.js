@@ -1,12 +1,35 @@
-const router      = require('express').Router()
-  ,  {User}       = require('../models/users')
+const router        = require('express').Router()
+  ,   {User}        = require('../models/users')
 
-  ,   bcrypt      = require('bcryptjs')
-  ,   Joi         = require('@hapi/joi')
+  ,   bcrypt        = require('bcryptjs')
+  ,   Joi           = require('@hapi/joi')
 
-  ,  { sysAdmin } = require('../middleware/sysRoles')
-  ,  auth         = require('../middleware/auth')
-  , { passport }  = require('../services/passport')
+  ,   {sysAdmin}    = require('../middleware/sysRoles')
+  ,   auth          = require('../middleware/auth')
+  ,   {passport}    = require('../services/passport')
+
+
+router.get('/google', passport.authenticate('google',{scope:['email','profile']}))
+
+router.get('/google/callback',
+    passport.authenticate('google', {
+        successRedirect: environment === 'production' ? '/' : getConfig('google.successRedirect'),
+        failureRedirect: environment === 'production' ? '/' : getConfig('google.failureRedirect'),
+        // session: false
+    }
+))
+
+router.get('/google-jwt', async (req, res, next) => {
+    if (!req.user) return next({ status: 401, msg: 'Unauthorized' });
+
+    const user = await User.findOne({ userID: req.user.userID })
+
+    const token = user.generateAuthToken()
+
+    res.payload = token
+    return next();
+})
+
 
 // router.post('/sign-up',async(req,res,next)=>{
 //   const schema  = Joi.object({
@@ -178,26 +201,5 @@ const router      = require('express').Router()
 //   return next();
 // });
 
-router.get('/google', passport.authenticate('google', { scope: ['email', 'profile'] }))
-
-router.get('/google/callback',
-  passport.authenticate('google', {
-    successRedirect: environment === 'production' ? '/' : getConfig('clientUrl'),
-    failureRedirect: environment === 'production' ? '/' : getConfig('clientUrl'),
-    // session: false
-  }
-))
-
-router.get('/google-jwt', async (req, res, next) => {
-
-  if (!req.user) return next({ status: 401, msg: 'Unauthorized' });
-
-  const user = await User.findOne({ userID: req.user.userID })
-
-  const token = user.generateAuthToken()
-
-  res.payload = token
-  return next();
-})
 
 module.exports = router;

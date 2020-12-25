@@ -39,11 +39,13 @@ module.exports = {
         "clientID":                 '859508223645-cbbn56jvt5tmrkohlfdlfna5bklbnnkm.apps.googleusercontent.com',
         "clientSecret":             '4wELHtwGm2Ybr6PEKSXYteCN',
         "callbackURL":              'http://localhost:3000/auth/google/callback',
+        "successRedirect":          'http://localhost:3000/',
+        "failureRedirect":          'http://localhost:3000/',
     },
     "exposeLogsFolder":             true,
     "logLevelToConsole":            "access",
     "logLevelToFile":               "access",
     "logLevelToDB":                 "error",
     "debug":                        true,
-    'clientUrl':                    'http://localhost:3000/'
+    'clientURLs':                   ['http://localhost:3000/','http://127.0.0.1:3000/']
 }

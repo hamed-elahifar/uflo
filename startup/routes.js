@@ -9,10 +9,6 @@ const express                   = require('express')
   ,   JSONValidation            = require('../middleware/JSONValidation')
   ,   {passport}                = require('../services/passport')
   ,   cookieSession             = require('cookie-session')
-  ,   bodyParser                = require('body-parser')
-
-
-const whitelist = [getConfig('clientUrl')];
 
 
 module.exports = function (app) {
@@ -20,25 +16,22 @@ module.exports = function (app) {
     app.disable('x-powered-by');
     app.enable ('trust proxy' );
 
-    app.use(bodyParser.urlencoded({ extended: true }))
-    app.use(bodyParser.json({limit:'1000kb'}))
-
-    // app.use(express.urlencoded({extended:true}));
-    // app.use(express.json({limit:'100kb'}));
+    app.use(express.urlencoded({extended:true}));
+    app.use(express.json({limit:'100kb'}));
     app.use(JSONValidation);
 
-    // app.use(cors({
-    //   origin: function (origin, callback) {
-    //     if (whitelist.indexOf(origin) !== -1 || !origin) {
-    //       callback(null, true)
-    //     } else {
-    //       callback(new Error('Not allowed by CORS'))
-    //     }
-    //   },
-    //   credentials: true // e.g., enable fetching 'http://localhost:3000/users/me' from origin 'http://localhost:8080' 
-    // }));
+    const whitelist = getConfig('clientURLs');
 
-    app.use(cors())
+    app.use(cors({
+        origin: function (origin, callback) {
+            if (whitelist.indexOf(origin) !== -1 || !origin) callback(null, true)
+            else                                             callback(new Error('Not allowed by CORS'))
+            
+        },
+        credentials: true // e.g., enable fetching 'http://localhost:3000/users/me' from origin 'http://localhost:8080' 
+    }));
+
+    // app.use(cors())
 
     app.use(express.static('static'));
     app.use(express.static('upload'));
@@ -91,12 +84,12 @@ module.exports = function (app) {
         }
         function format(seconds){
             function pad(s){
-              return (s < 10 ? '0' : '') + s;
+                return (s < 10 ? '0' : '') + s;
             }
             var hours   = Math.floor(seconds / (60*60));
             var minutes = Math.floor(seconds % (60*60) / 60);
             var seconds = Math.floor(seconds % 60);
-          
+
             return pad(hours) + ':' + pad(minutes) + ':' + pad(seconds);
         }
         const uptime = process.uptime();

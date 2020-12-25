@@ -65,22 +65,21 @@ router.post('/files',[auth],async(req,res,next)=>{
 
     const {courseID} = req.body
 
-  const directory = path.join(__dirname, '..', 'upload', courseID)
+    const directory = path.join(__dirname, '..', 'upload', courseID)
     if (!fs.existsSync(directory)) {
-      res.payload = []
-      return next()
+        res.payload = []
+        return next()
     }
     
     const formatFilePath = (file) => ({
-      name: file,
-      path: `${req.protocol}://${req.get('host')}/${courseID}/${encodeURIComponent(file)}`
+        name: file,
+        path: `${req.protocol}://${req.get('host')}/${courseID}/${encodeURIComponent(file)}`
     })
 
     fs.readdir(directory, (err, files) => {
-      res.payload = files.map(formatFilePath)
-      return next();
+        res.payload = files.map(formatFilePath)
+        return next();
     });
-
     
 });
 router.post('/add',[auth],async(req,res,next)=>{
