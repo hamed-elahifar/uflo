@@ -146,5 +146,3 @@ router.post('/full',[auth],async(req,res,next)=>{
     return next();
 });
 module.exports = router;
-
-

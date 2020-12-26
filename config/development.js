@@ -4,8 +4,8 @@ module.exports = {
     "PORT":                     3000,
     "welcomeMessage":           "uflo [DEV] running on port",
     "mongoDB":{
-        "connectionString":     "mongodb://localhost/uflo",
-        // "connectionString":     "mongodb+srv://uflo:uflo@uflo.4pl82.mongodb.net/uflo?retryWrites=true&w=majority",
+        // "connectionString":     "mongodb://localhost/uflo",
+        "connectionString":     "mongodb+srv://uflo:uflo@uflo.4pl82.mongodb.net/uflo?retryWrites=true&w=majority",
         "debug":                false,
         "onSuccess":            "Connected to mongoDB server",
         "onError":              "Could NOT connect to mongoDB server"
