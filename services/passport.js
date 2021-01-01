@@ -58,7 +58,7 @@ passport.use(new JwtStrategy(options,(jwt_payload,done) => {
     });
 }));
 
-console.log('Callback URL', getConfig('google.callbackURL'))
+// console.log('Callback URL', getConfig('google.callbackURL'))
 
 passport.use(new GoogleStrategy({
         clientID:           getConfig('google.clientID'),

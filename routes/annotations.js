@@ -22,7 +22,13 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     let query = {lessonID}
 
-    const [err,result] = await tojs(Annotation.find(query))
+    const [err,result] = await tojs(
+        Annotation  .find(query)
+                    .populate(
+                        {path:'likesInfo',select:'-_id userID firstname lastname'}
+                    )
+
+    )
 
     res.payload = result
 
@@ -34,7 +40,7 @@ router.post('/add',[auth],async(req,res,next)=>{
 
         desc:               Joi.string().required(),
         type:               Joi.string().valid('highlight','annotation','question').required(),
-        tag:                Joi.array() .items(Joi.string()),
+        tags:               Joi.array() .items(Joi.string()),
 
         selection:          Joi.array() .items(Joi.object({
             frameID:        Joi.string().required(),
@@ -46,12 +52,6 @@ router.post('/add',[auth],async(req,res,next)=>{
         
         whomToAsk:          Joi.string().valid('professor','TA','everyone').required(),
 
-        reply:              Joi.object({
-            replyText:      Joi.string().required(),
-            userID:         Joi.string().required(),
-            solution:       Joi.boolean(),
-        }),
-
         lessonID:           Joi.string().required(),
 
         token:              Joi.any().allow(null,'').optional(),
@@ -60,7 +60,7 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {desc,type,tag,selection,color,whomToAsk,reply,lessonID} = req.body
+    const {desc,type,tags,selection,color,whomToAsk,lessonID} = req.body
 
     const lesson = await Lesson.findOne({lessonID})
     if (!lesson) return next({status:404,msg:'lesson not found'})
@@ -69,7 +69,7 @@ router.post('/add',[auth],async(req,res,next)=>{
     selection.forEach(i => {anntLength += +i.selectLength})
 
     const annotation = new Annotation({
-        desc,type,tag,selection,color,whomToAsk,reply,lessonID,
+        desc,type,tags,selection,color,whomToAsk,lessonID,
         anntLength,
         userID:             req.userinfo.userID,
         descLength:         desc.length,
@@ -90,7 +90,7 @@ router.post('/update',[auth],async(req,res,next)=>{
         annotationID:       Joi.string().required(),
         desc:               Joi.string().required(),
         type:               Joi.string().valid('highlight','annotation','question').required(),
-        tag:                Joi.array() .items(Joi.string()),
+        tags:               Joi.array() .items(Joi.string()),
 
         selection:          Joi.array() .items(Joi.object({
             frameID:        Joi.string().required(),
@@ -102,12 +102,6 @@ router.post('/update',[auth],async(req,res,next)=>{
         
         whomToAsk:          Joi.string().valid('professor','TA','everyone').required(),
 
-        reply:              Joi.object({
-            replyText:      Joi.string().required(),
-            userID:         Joi.string().required(),
-            solution:       Joi.boolean(),
-        }),
-
         lessonID:           Joi.string().required(),
 
         token:              Joi.any().allow(null,'').optional(),
@@ -116,9 +110,9 @@ router.post('/update',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {annotationID,desc,type,tag,selection,color,whomToAsk,reply,lessonID} = req.body
+    const {annotationID,desc,type,tags,selection,color,whomToAsk,lessonID} = req.body
 
-    const annotation = await Annotation.findOne({annotationID})
+    const annotation = await Annotation.findOne({annotationID,userID:req.userinfo.userID})
     if (!annotation) return next({status:404,msg:'Annotation not found'})
 
     const lesson = await Lesson.findOne({lessonID})
@@ -126,7 +120,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     annotation.desc         = desc      ? desc      : annotation.desc
     annotation.type         = type      ? type      : annotation.type
-    annotation.tag          = tag       ? tag       : annotation.tag
+    annotation.tags         = tags      ? tags      : annotation.tags
     annotation.selection    = selection ? selection : annotation.selection
     annotation.color        = color     ? color     : annotation.color
     annotation.whomToAsk    = whomToAsk ? whomToAsk : annotation.whomToAsk
@@ -163,9 +157,78 @@ router.post('/delete',[auth],async(req,res,next)=>{
     return next()
 });
 router.post('/reply',[auth],async(req,res,next)=>{
-    // @TODO
+    const schema  = Joi.object({
+
+        annotationID:       Joi.string().required(),
+        reply:              Joi.object({
+            replyText:      Joi.string().required(),
+            solution:       Joi.boolean(),
+        }).optional(),
+        del:                Joi.string().optional(),
+
+        token:              Joi.any().allow(null,'').optional(),
+
+    }).xor('reply','del')
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {annotationID,reply,del} = req.body
+
+    let annotation;
+
+    if (del) {
+
+        annotation = await Annotation.updateOne(
+            {annotationID,userID:req.userinfo.userID},
+            {$pull:{reply:{_id:del}}}
+        )
+
+        console.log(annotation)
+
+        if (annotation.n == 1) req.payload = 'success'
+
+    } else {
+        reply.userID = req.userinfo.userID
+
+        annotation = await Annotation.findOne({annotationID,userID:req.userinfo.userID})
+        if (!annotation) return next({status:404,msg:'Annotation not found'})
+    
+        annotation.reply.push(reply)
+    
+        await annotation.save();
+    }
+
+    res.payload = annotation
+    return next();
+
 });
 router.post('/likes',[auth],async(req,res,next)=>{
-    // @TODO
+    const schema  = Joi.object({
+
+        annotationID:     Joi.string().required(),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {annotationID} = req.body
+
+    const annotation = await Annotation.findOne({annotationID})
+    if (!annotation) return next({status:404,msg:'Annotation not found'})
+
+    index = annotation.likes.indexOf(req.userinfo.userID)
+
+    index === -1 
+        ? annotation.likes.push(req.userinfo.userID)
+        : annotation.likes.splice(index,1)
+
+    await annotation.save();
+
+    res.payload = annotation
+    return next()
+});
+router.post('/tags',[auth],async(req,res,next)=>{
+    res.payload = await Annotation.distinct('tags')
+    return next();
 });
 module.exports = router;

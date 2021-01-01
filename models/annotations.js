@@ -13,7 +13,7 @@ const annotationSchema  = new mongoose.Schema({
         type:           String,
         enum:           ['highlight','annotation','question'],
     },
-    tag:                [String],
+    tags:               [String],
     selection:{
         frameID:{
             type:       String,
@@ -33,8 +33,8 @@ const annotationSchema  = new mongoose.Schema({
         enum:           ['professor','TA','everyone']
     },
     likes:{
-        type:           Number,
-        default:        0,
+        type:           [String],
+        ref:            'users',
     },
     descLength:         Number,
     anntLength:         Number,
@@ -42,11 +42,11 @@ const annotationSchema  = new mongoose.Schema({
         type:           Boolean,
         default:        false
     },
-    reply:{
+    reply:[{
         replyText:      String,
         userID:         String,
         solution:       Boolean,
-    },
+    }],
     lessonID:{
         type:           String,
         ref:            'lessons'
@@ -69,7 +69,11 @@ annotationSchema.virtual('lobj',{
     foreignField:  'lobjID',
     justOne:        true,
 });
-
+annotationSchema.virtual('likesInfo',{
+    ref:           'users',
+    localField:    'likes',
+    foreignField:  'userID',
+});
 const   Annotation = mongoDB.model('annotation',annotationSchema,'annotation');
 
 exports.Annotation = Annotation;
