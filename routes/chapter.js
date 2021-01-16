@@ -1,8 +1,8 @@
-const { Lesson } = require('../models/lessons');
 
 const router                    = require('express').Router()
   ,   {Chapter}                 = require('../models/chapter')
   ,   {Course}                  = require('../models/courses')
+  ,   {Lesson}                  = require('../models/lessons')
 
   ,   Joi                       = require('@hapi/joi')
 

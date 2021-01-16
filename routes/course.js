@@ -1,5 +1,3 @@
-const { ConsoleTransportOptions } = require('winston/lib/winston/transports');
-
 const router         = require('express').Router()
   ,   {User}         = require('../models/users')
   ,   {Course}       = require('../models/courses')
