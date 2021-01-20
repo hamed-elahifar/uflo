@@ -8,7 +8,11 @@ const router                    = require('express').Router()
 
 router.post('/add',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
-
+        
+        courseID:   Joi.string().required(),
+        chapterID:  Joi.string().required(),
+        lessonID:   Joi.string().required(),
+        lobjID:     Joi.string().required(),
         frameID:    Joi.string().required(),
         startDate:  Joi.string().required(),
         duration:   Joi.string().required(),
@@ -17,9 +21,10 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {frameID,startDate,duration} = req.body
+    const {courseID,chapterID,lessonID,lobjID,frameID,startDate,duration} = req.body
 
     const analytic = new Analytics({
+        courseID,chapterID,lessonID,lobjID,
         frameID,startDate,duration,
         userID:req.userinfo.userID,
     })

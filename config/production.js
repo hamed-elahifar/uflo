@@ -9,6 +9,12 @@ module.exports = {
         "onSuccess":            "Connected to mongoDB server",
         "onError":              "Could NOT connect to mongoDB server"
     },
+    "DB":{
+        "connectionString":     "postgres://postgres:secret@127.0.0.1:5432/uflo",
+        "onSuccess":            "Connected to Postgres [uFlo] server",
+        "onError":              "Unable to connect to Postgres [uFlo] server",
+        "debug":                 false,
+    },
     "jwt":{
         "token":                "oyN^76n(*&N&I3N76r",
         "tokenTime":            6048000  // 7 days

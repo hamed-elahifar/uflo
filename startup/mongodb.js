@@ -16,10 +16,10 @@ const options   = {
 mongoDB = new mongoose();
 
 mongoDB.connection.on('reconnected',() => {
-    console.log('MongoDB reconnected!');
+    logger.info('MongoDB reconnected!');
 });
 mongoDB.connection.on('disconnected',() => {
-    console.log('MongoDB disconnected!');
+    logger.info('MongoDB disconnected!');
     mongoDBConnection();
 });
 
@@ -27,15 +27,15 @@ mongoDBConnection = function() {
     try{
         mongoDB.connect(getConfig('mongoDB.connectionString'),options)
             .then (async (connection) => {
-                console.log(getConfig('mongoDB.onSuccess'))
+                logger.info(getConfig('mongoDB.onSuccess'))
             })
             .catch (err => {
                 errorLog(err)
-                console.log(getConfig('mongoDB.onError'))
+                logger.info(getConfig('mongoDB.onError'))
             });
     }
     catch(err){
-        console.log(err)
+        logger.error(err)
     }
 }
 
