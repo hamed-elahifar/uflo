@@ -10,7 +10,7 @@ module.exports = {
         "onError":              "Could NOT connect to mongoDB server"
     },
     "DB":{
-        "connectionString":     "postgres://postgres:secret@127.0.0.1:5432/uflo",
+        "connectionString":     "postgres://postgres:jh23y6ni4jk4un7vLM89YN@127.0.0.1:5432/uflo",
         "onSuccess":            "Connected to Postgres [uFlo] server",
         "onError":              "Unable to connect to Postgres [uFlo] server",
         "debug":                 false,
