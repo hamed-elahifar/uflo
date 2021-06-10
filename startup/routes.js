@@ -115,6 +115,7 @@ module.exports = function (app) {
     app.use('/lobj',        require('../routes/lobj'))
     app.use('/frames',      require('../routes/frames'))
     app.use('/canvas',      require('../routes/canvas'))
+    app.use('/state',       require('../routes/state'))
     app.use('/annotation',  require('../routes/annotations'))
     app.use('/analytics',   require('../routes/analytics'))
     
