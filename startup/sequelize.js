@@ -19,8 +19,7 @@ DB.authenticate()
         //    .catch(err =>{console.log(err)})
     })
     .catch(err => {
-        errorLog(err)
-        logger.error(getConfig('DB.onError'))
+        errorLog(getConfig('DB.onError'),err)
     })
 
 module.exports = {DB}

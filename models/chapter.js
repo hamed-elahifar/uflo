@@ -12,12 +12,10 @@ const chapterSchema = new mongoose.Schema({
         required:       true
     },
     desc:               String,
-
     startDate:{
         type:           Date,
         default:        Date.now
     },
-
     order:              Number,
     courseID:{
         type:           String,

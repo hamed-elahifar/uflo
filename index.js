@@ -12,8 +12,7 @@ colors.fg.Crimson,
  ║ ║╠╣ ║  ║ ║ 
  ╚═╝╚  ╩═╝╚═╝ 
              `,
-colors.Reset
-)
+colors.Reset)
 
 require('express-async-errors');
 require('./startup/mongodb').mongoDBConnection();

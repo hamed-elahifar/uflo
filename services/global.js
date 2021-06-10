@@ -1,14 +1,14 @@
 
-// global._            = require('lodash');
+global._            = require('lodash');
 global.environment  = process.env.NODE_ENV ? process.env.NODE_ENV : 'production'
 global.getConfig    = require('../config/index')
 global._            = require('lodash');
 global.logger       = require('./logger')
 
-
 const Events        = require('events');
 global.event        = new Events.EventEmitter();
-// global.event.setMaxListeners(50)
+
+global.sleep        = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 global.tojs         = (promise) => {
     if (!promise instanceof Promise) throw new Error('This Object Is Not A Promis Instance...')
@@ -49,24 +49,31 @@ global.colors = {
     }
 };
 process.on("uncaughtException" , ex => {
+    if (JSON.stringify(ex,null,2) == '{}') {
+        console.error(colors.fg.Red,colors.Blink,'uncaughtException => ',colors.Reset)
+        errorLog(ex)
+        return
+    } 
+
     logger.error('uncaughtException ', ex.message || 
         ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
     logger.debug(ex.stack || 
         ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
 })
+
 process.on("unhandledRejection", ex => {
+    if (JSON.stringify(ex,null,2) == '{}') {
+        console.error(colors.fg.Red,colors.Blink,'unhandledRejection => ',colors.Reset)
+        errorLog(ex)
+        return
+    }
+
     logger.error('unhandledRejection ',ex.message || 
         ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
     logger.debug(ex.stack || 
         ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
 })
 
-// process.on('unhandledRejection', (reason, promise) => {
-//     console.log('Unhandled Rejection at:', promise, 'reason:', reason);
-//     console.trace();
-// });
-
-// process.on("unhandledRejection", ex => {throw ex});
 Array.prototype.isEmpty = function() {return !!this.length}
 
 global.errorLog = (msg,err) => {

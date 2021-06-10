@@ -118,9 +118,10 @@ const userSchema = new mongoose.Schema({
         enum:           ['Dark','Light']
     }
 
-},{timestamps:          true,
-   // toObject:         {virtuals:true},
-   toJSON:              {virtuals:true},
+},{
+    timestamps:          true,
+    // toObject:         {virtuals:true},
+    toJSON:              {virtuals:true},
 });
 
 userSchema.index({userID:1,email:1},{unique:true,background:true});

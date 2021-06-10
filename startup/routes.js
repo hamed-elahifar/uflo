@@ -20,7 +20,7 @@ module.exports = function (app) {
     app.use(express.json({limit:'100kb'}));
     app.use(JSONValidation);
 
-    const whitelist = getConfig('clientURLs');
+    // const whitelist = getConfig('clientURLs');
 
     // app.use(cors({
     //     origin: function (origin, callback) {
@@ -114,6 +114,7 @@ module.exports = function (app) {
     app.use('/chapters',    require('../routes/chapter'))
     app.use('/lobj',        require('../routes/lobj'))
     app.use('/frames',      require('../routes/frames'))
+    app.use('/canvas',      require('../routes/canvas'))
     app.use('/annotation',  require('../routes/annotations'))
     app.use('/analytics',   require('../routes/analytics'))
     
