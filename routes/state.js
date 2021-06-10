@@ -8,7 +8,7 @@ const router                    = require('express').Router()
 router.post('/list',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        stateID:    Joi.string().required(),
+        // stateID:    Joi.string().required(),
 
         token:      Joi.any().optional().allow('',null)
 
@@ -18,7 +18,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     const {stateID} = req.body
 
-    let query = {stateID}
+    let query = {}
 
     const [err,result] = await tojs(State.find(query))
 
