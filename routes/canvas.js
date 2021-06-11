@@ -2,6 +2,8 @@ const router            = require('express').Router()
   ,   {Lobj}            = require('../models/lobj')
   ,   {Canvas}          = require('../models/canvas')
 
+  ,   axios             = require('axios')
+
   ,   Joi               = require('@hapi/joi')
 
   ,  {sysAdmin}         = require('../middleware/sysRoles')
@@ -114,6 +116,22 @@ router.post('/delete',[auth],async(req,res,next)=>{
 
     res.payload = 'successful'
     return next()
+});
+// temporary
+router.post('/StateZeroWithUrl',[auth],async(req,res,next)=>{
+
+    const url = req.query ? req.query.url: req.body.url;
+
+    const response = await axios.get(url,{
+        headers: {
+            accept: 'application/json',
+        }
+    });
+    
+    if(response) res.payload = response.data
+
+    return next();
+
 });
 
 module.exports = router;
