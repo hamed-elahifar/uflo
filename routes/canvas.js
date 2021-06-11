@@ -120,7 +120,7 @@ router.post('/delete',[auth],async(req,res,next)=>{
 // temporary
 router.post('/StateZeroWithUrl',[auth],async(req,res,next)=>{
 
-    const url = req.query ? req.query.url: req.body.url;
+    const url = req.body.url || req.query.url;
 
     const response = await axios.get(url,{
         headers: {
