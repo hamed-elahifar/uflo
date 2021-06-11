@@ -118,7 +118,7 @@ router.post('/delete',[auth],async(req,res,next)=>{
     return next()
 });
 // temporary
-router.post('/StateZeroWithUrl',[auth],async(req,res,next)=>{
+router.post('/StateZeroWithUrl',async(req,res,next)=>{
 
     const url = req.body.url || req.query.url;
 
