@@ -30,7 +30,7 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
         
         classLevel:         Joi.string().valid('Freshman','Sophomore','Junior','Senior')
                                         .when('role',{'is':'student',then:Joi.string().required(),otherwise:Joi.forbidden()}),
-        
+
         major:              Joi.array().items(Joi.string()).required(),
 
         role:               Joi.string().required().valid('student','professor'),
