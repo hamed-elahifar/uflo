@@ -2,7 +2,12 @@ const router                    = require('express').Router()
   ,   {Flomotion}               = require('../models/flomotion')
   ,   Joi                       = require('@hapi/joi')
 
-router.post('/get',async(req,res,next)=>{
+  ,  {sysAdmin,isProfessor,isTA}
+                                = require('../middleware/sysRoles')
+  ,   auth           = require('../middleware/auth')
+
+
+router.post('/get',[auth,isTA],async(req,res,next)=>{
     
     const result = await Flomotion.findOne({_id:req.body.id})
 
@@ -10,7 +15,7 @@ router.post('/get',async(req,res,next)=>{
     
     return next();
 });
-router.post('/add',async(req,res,next)=>{
+router.post('/add',[auth,isTA],async(req,res,next)=>{
     
     const {flomotiondesmos,animation} = req.body
 
@@ -20,7 +25,7 @@ router.post('/add',async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',async(req,res,next)=>{
+router.post('/update',[auth,isTA],async(req,res,next)=>{
     
     const {id,flomotiondesmos,animation} = req.body
 

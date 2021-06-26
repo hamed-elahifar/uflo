@@ -10,7 +10,8 @@ const router            = require('express').Router()
   ,   path              = require('path')
   ,   fs                = require('fs')
 
-  ,  {sysAdmin}         = require('../middleware/sysRoles')
+  ,  {sysAdmin,isProfessor,isTA}
+                        = require('../middleware/sysRoles')
   ,   auth              = require('../middleware/auth')
 
 router.post('/list',[auth],async(req,res,next)=>{
@@ -33,7 +34,7 @@ router.post('/list',[auth],async(req,res,next)=>{
     
     return next();
 });
-router.post('/add',[auth],async(req,res,next)=>{
+router.post('/add',[auth,isTA],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
@@ -88,7 +89,7 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',[auth],async(req,res,next)=>{
+router.post('/update',[auth,isTA],async(req,res,next)=>{
 
     const schema  = Joi.array().items(
     
@@ -152,7 +153,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/delete',[auth],async(req,res,next)=>{
+router.post('/delete',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
 
         frameID:     Joi.string().required(),
@@ -178,7 +179,7 @@ const fileFilter  = (req,file,cb) => {cb(null, true)}
 const limits      = {files: 1,fileSize: 20 * 1024 * 1024};// 20MB
 const upload      = multer({storage,fileFilter,limits}).array('upload',1);
 
-router.post('/upload/:frameID',[auth],async(req,res)=>{
+router.post('/upload/:frameID',[auth,isTA],async(req,res)=>{
 
     const frame = await Frame.findOne({frameID:req.params.frameID})
     if (!frame) return next({status:404,msg:'frame not found'})

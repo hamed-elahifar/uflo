@@ -4,7 +4,8 @@ const router                    = require('express').Router()
 
   ,   Joi                       = require('@hapi/joi')
 
-  ,  {sysAdmin}                 = require('../middleware/sysRoles')
+  ,  {sysAdmin,isProfessor,isTA}
+                                = require('../middleware/sysRoles')
   ,   auth                      = require('../middleware/auth')
 
 router.all('/me',[auth],async(req,res,next)=>{
@@ -89,7 +90,7 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/list',[auth],async(req,res,next)=>{
+router.post('/list',[auth,sysAdmin],async(req,res,next)=>{
     res.payload = await User.find();
     return next();
 })
@@ -215,7 +216,7 @@ router.post('/edit-userinfo',[auth,sysAdmin],async(req,res,next)=>{
 
     return next();
 });
-router.post('/list',[auth],async(req,res,next)=>{
+router.post('/search',[auth,sysAdmin],async(req,res,next)=>{
     
     const schema  = Joi.object({
         search:     Joi.string() .optional().allow(null,''),

@@ -3,12 +3,13 @@ const router                    = require('express').Router()
   ,   {Lobj}                    = require('../models/lobj')
   ,   {Canvas}                  = require('../models/canvas')
 
-
+  ,  {sysAdmin,isProfessor,isTA}
+                                = require('../middleware/sysRoles')
   ,   Joi                       = require('@hapi/joi')
 
   ,   auth                      = require('../middleware/auth')
 
-router.post('/list',[auth],async(req,res,next)=>{
+router.post('/list',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
 
         lobjID:         Joi.string().required(),
@@ -32,7 +33,7 @@ router.post('/list',[auth],async(req,res,next)=>{
     
     return next();
 });
-router.post('/add',[auth],async(req,res,next)=>{
+router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
         lobjID:         Joi.string().required(),
@@ -70,7 +71,7 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',[auth],async(req,res,next)=>{
+router.post('/update',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
         
         stateID:        Joi.string().required(),
@@ -117,7 +118,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/delete',[auth],async(req,res,next)=>{
+router.post('/delete',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
         stateID:       Joi.string().required(),

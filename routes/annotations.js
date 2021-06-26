@@ -4,7 +4,8 @@ const router            = require('express').Router()
 
   ,   Joi               = require('@hapi/joi')
 
-  ,  {sysAdmin}         = require('../middleware/sysRoles')
+  ,  {sysAdmin,isProfessor,isTA}
+                        = require('../middleware/sysRoles')
   ,   auth              = require('../middleware/auth')
 
 router.post('/list',[auth],async(req,res,next)=>{

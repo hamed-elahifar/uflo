@@ -7,7 +7,8 @@ const router         = require('express').Router()
   ,   path           = require('path')
   ,   fs             = require('fs')
   
-  ,  {sysAdmin}      = require('../middleware/sysRoles')
+  ,  {sysAdmin,isProfessor,isTA}
+                     = require('../middleware/sysRoles')
   ,   auth           = require('../middleware/auth')
 
 router.post('/list',[auth],async(req,res,next)=>{
@@ -35,7 +36,7 @@ router.post('/list',[auth],async(req,res,next)=>{
     
     return next();
 });
-router.post('/students',[auth],async(req,res,next)=>{
+router.post('/students',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
 
         courseID:       Joi.string().required(),
@@ -52,7 +53,7 @@ router.post('/students',[auth],async(req,res,next)=>{
     
     return next();
 });
-router.post('/files',[auth],async(req,res,next)=>{
+router.post('/files',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
 
         courseID:       Joi.string().required(),
@@ -80,7 +81,7 @@ router.post('/files',[auth],async(req,res,next)=>{
     });
     
 });
-router.post('/add',[auth],async(req,res,next)=>{
+router.post('/add',[auth,isProfessor],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
@@ -112,7 +113,7 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',[auth],async(req,res,next)=>{
+router.post('/update',[auth,isTA],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
@@ -153,7 +154,7 @@ router.post('/update',[auth],async(req,res,next)=>{
     
     return next();
 });
-router.post('/delete',[auth],async(req,res,next)=>{
+router.post('/delete',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
         courseID:       Joi.string().required(),
@@ -201,8 +202,8 @@ router.post('/register-student',[auth],async(req,res,next)=>{
     if (!course) return next({status:404,msg:'course not found'})
 
     const [err,result] = await tojs(User.updateOne(
-        {userID:req.user.userID},
-        {$addToSet:{courseIDs:course.courseID}}
+        {userID:    req.user.userID},
+        {$addToSet: {courseIDs:course.courseID}}
     ))
 
     if (err) return next({status:500,msg:'faild'})
@@ -212,7 +213,7 @@ router.post('/register-student',[auth],async(req,res,next)=>{
     return next();
 
 })
-router.post('/add-ta',[auth],async(req,res,next)=>{
+router.post('/add-ta',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
         TAEmail:    Joi.string().required(),
@@ -243,7 +244,7 @@ router.post('/add-ta',[auth],async(req,res,next)=>{
     return next();
 
 })
-router.post('/remove-ta',[auth],async(req,res,next)=>{
+router.post('/remove-ta',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
         TAEmail:    Joi.string().required(),
@@ -290,7 +291,7 @@ const fileFilter  = (req,file,cb) => {cb(null, true)}
 const limits      = {files: 10,fileSize: 20 * 1024 * 1024};// 20MB
 const upload      = multer({storage,fileFilter,limits}).array('upload',10);
 
-router.post('/upload/:courseID',[auth],async(req,res)=>{
+router.post('/upload/:courseID',[auth,isTA],async(req,res)=>{
 
     const course = await Course.findOne({courseID:req.params.courseID})
     if (!course) return next({status:404,msg:'course not found'})

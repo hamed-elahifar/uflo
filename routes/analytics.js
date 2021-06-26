@@ -1,9 +1,6 @@
 const router                    = require('express').Router()
   ,   {Analytics}               = require('../models/analytics')
-
   ,   Joi                       = require('@hapi/joi')
-
-  ,   {sysAdmin}                = require('../middleware/sysRoles')
   ,   auth                      = require('../middleware/auth')
 
 router.post('/add',[auth],async(req,res,next)=>{

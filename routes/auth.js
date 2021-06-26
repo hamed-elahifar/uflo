@@ -1,11 +1,6 @@
 const router        = require('express').Router()
   ,   {User}        = require('../models/users')
 
-  ,   bcrypt        = require('bcryptjs')
-  ,   Joi           = require('@hapi/joi')
-
-  ,   {sysAdmin}    = require('../middleware/sysRoles')
-  ,   auth          = require('../middleware/auth')
   ,   {passport}    = require('../services/passport')
 
 

@@ -6,7 +6,8 @@ const router            = require('express').Router()
 
   ,   Joi               = require('@hapi/joi')
 
-  ,  {sysAdmin}         = require('../middleware/sysRoles')
+  ,  {sysAdmin,isProfessor,isTA}
+                        = require('../middleware/sysRoles')
   ,   auth              = require('../middleware/auth')
 
 router.post('/list',[auth],async(req,res,next)=>{
@@ -29,7 +30,7 @@ router.post('/list',[auth],async(req,res,next)=>{
     
     return next();
 });
-router.post('/add',[auth],async(req,res,next)=>{
+router.post('/add',[auth,isTA],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
@@ -60,7 +61,7 @@ router.post('/add',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',[auth],async(req,res,next)=>{
+router.post('/update',[auth,isTA],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
@@ -100,7 +101,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     return next();
 });
-router.post('/delete',[auth],async(req,res,next)=>{
+router.post('/delete',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
         canvasID:     Joi.string().required(),
