@@ -39,6 +39,7 @@ router.post('/add',[auth],async(req,res,next)=>{
         lessonID:           Joi.string().required(),
         order:              Joi.number().required(),
         startDate:          Joi.string().optional().allow(null,''),
+        url:                Joi.string().optional().allow(null,''),
 
         token:              Joi.any().allow(null,'').optional(),
 
@@ -46,7 +47,7 @@ router.post('/add',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,lessonID,order,startDate} = req.body
+    const {title,desc,lessonID,order,startDate,url} = req.body
 
     const lesson = await Lesson.findOne({lessonID})
     if (!lesson) return next({status:404,msg:'lesson not found'})
@@ -63,6 +64,7 @@ router.post('/add',[auth],async(req,res,next)=>{
         order,
         startDate,
         lessonID,
+        url,
         chapterID:  chapter.chapterID,
         courseID:   course.courseID,
     })
@@ -87,6 +89,7 @@ router.post('/update',[auth],async(req,res,next)=>{
             lobjID:             Joi.string().required(),
             order:              Joi.number().required(),
             startDate:          Joi.string().optional().allow(null,''),
+            url:                Joi.string().optional().allow(null,''),
 
             token:              Joi.any().allow(null,'').optional(),
 
@@ -99,7 +102,7 @@ router.post('/update',[auth],async(req,res,next)=>{
 
     for (item of req.body){
 
-        const {lessonID,title,desc,lobjID,order,startDate} = item
+        const {lessonID,title,desc,lobjID,order,startDate,url} = item
 
         const lobj = await Lobj.findOne({lobjID})
         if (!lobj) return next({status:404,msg:'lobj not found'})
@@ -118,6 +121,7 @@ router.post('/update',[auth],async(req,res,next)=>{
         lobj.lessonID   = lessonID  ? lessonID  : lobj.lessonID
         lobj.order      = order     ? order     : lobj.order
         lobj.startDate  = startDate ? startDate : lobj.startDate
+        lobj.url        = url       ? url       : lobj.url
 
         const [err,result] = await tojs(lobj.save())
 

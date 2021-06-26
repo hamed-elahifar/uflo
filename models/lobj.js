@@ -39,6 +39,7 @@ const lobjSchema = new mongoose.Schema({
         type:           Date,
         default:        Date.now
     },
+    url:                String,
 
 },{
     timestamps:          true,
