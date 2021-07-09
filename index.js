@@ -1,7 +1,7 @@
 // --------------------- // بسم الله الرحمن الرحيم // --------------------- //
 console.clear();
 
-            require('./services/global');
+            require('./src/services/global');
 const app = require('express')();
 
 console.info(
@@ -15,13 +15,13 @@ colors.fg.Crimson,
 colors.Reset)
 
 require('express-async-errors');
-require('./startup/mongodb').mongoDBConnection();
-require('./startup/routes')(app);
+require('./src/startup/mongodb').mongoDBConnection();
+require('./src/startup/routes')(app);
 
 
 const port   = process.env.PORT || getConfig('PORT') || 3000;
 const server = app.listen(port,() => {
-    console.info(`uFlo Starts On Port ${port}`)
+    logger.info(`uFlo Starts On Port ${port}`)
 })
 
 module.exports = server;

@@ -1,8 +1,7 @@
 
 global._            = require('lodash');
 global.environment  = process.env.NODE_ENV ? process.env.NODE_ENV : 'production'
-global.getConfig    = require('../config/index')
-global._            = require('lodash');
+global.getConfig    = require('../../config/index')
 global.logger       = require('./logger')
 
 const Events        = require('events');

@@ -165,54 +165,67 @@ router.post('/get-userinfo',[auth,sysAdmin],async(req,res,next)=>{
 });
 router.post('/edit-userinfo',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
-        userID:                    Joi.any()    .allow(null,'').required(),
-	    firstName:                  Joi.string() .allow(null,'').optional(),
-	    lastName:                   Joi.string() .allow(null,'').optional(),
-	    mobile:                     Joi.number() .allow(null,'').optional(),
-	    tel:                        Joi.string() .allow(null,'').optional(),
-	    active:                     Joi.boolean().allow(null,'').optional(),
-        enabled:                    Joi.boolean().allow(null,'').optional(),
-        IDNumber:                   Joi.string() .allow(null,'').optional(),
-        email:                      Joi.string() .allow(null,'').optional(),
-        birthDate:                  Joi.string() .allow(null,'').optional(),
-        isSysAdmin:                 Joi.boolean().allow(null,'').optional(),
-        mustChangePassword:         Joi.boolean().allow(null,'').optional(),
+        name:               Joi.string().optional().allow(null,''),
+        university:         Joi.string().required(),
+        
+        classLevel:         Joi.string().valid('Freshman','Sophomore','Junior','Senior')
+                                        .when('role',{'is':'student',then:Joi.string().required(),otherwise:Joi.forbidden()}),
 
-        token:                      Joi.any().allow(null,'').optional(),
+        major:              Joi.array().items(Joi.string()).required(),
+
+        role:               Joi.string().required().valid('student','professor'),
+
+        academicPerformance:            Joi.object().keys({
+            CurrentAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average'),
+            DesiredAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average')
+        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
+
+        examTakingPerformance:          Joi.object().keys({
+            ExamType:                   Joi.string().required().valid('Analytical','Memorization'),
+            QuestionType:               Joi.string().required().valid('Multiple Choice','Free Response'),
+        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
+
+        learningHabits:             Joi.object().keys({
+            ProcrastinationLevel:   Joi.string().required().valid('High','Medium','Low'),
+            LearningType:           Joi.array().items(Joi.string().valid('Visual','Verbal/Auditory','Kinesthetic','Reading/Writing')).required(),
+        })                             .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
+
+        teachingExperience:         Joi.string().valid('below 5 years','below 10 years','below 20 years','more than 20 years')
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise:Joi.forbidden()}),
+        enrolledStudent:            Joi.string().valid('less than 20','less than 100','less than 200','more than 200')
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise:Joi.forbidden()}),
+        classroom:                  Joi.string()
+                                       .when('role',{'is':'professor',then:Joi.string().required(),otherwise:Joi.forbidden()}),
+
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    let {userID,firstName,lastName,mobile,tel,active,enabled,
-        email,birthDate,isSysAdmin,
-        mustChangePassword} = req.body
+    const {name,university,classLevel,major,role,
+        academicPerformance,examTakingPerformance,learningHabits,
+        teachingExperience,enrolledStudent,classroom} = req.body
 
-    const user = await User.findOne({userID})
+
+    let [err,user] = await tojs(User.findOne({userID:req.userinfo.userID}))
+
     if (!user) return next({msg:'user not found'})
+    if (err)   return next({msg:'there is an error on fetching data from database'})
 
-    user.firstName                = firstName                != undefined ?      firstName                 : user.firstName  
-    user.lastName                 = lastName                 != undefined ?      lastName                  : user.lastName  
-    user.mobile                   = mobile                   != undefined ?      mobile                    : user.mobile  
-    user.tel                      = tel                      != undefined ?      tel                       : user.tel  
-    user.active                   = active                   != undefined ? eval(active)                   : user.active  
-    user.enabled                  = enabled                  != undefined ? eval(enabled)                  : user.enabled  
-    user.email                    = email                    != undefined ?      email                     : user.email  
-    user.birthDate                = birthDate                != undefined ?      birthDate                 : user.birthDate  
-    user.address                  = address                  != undefined ?      address                   : user.address  
-    user.isSysAdmin               = isSysAdmin               != undefined ? eval(isSysAdmin)               : user.isSysAdmin  
-    user.mustChangePassword       = mustChangePassword       != undefined ? eval(mustChangePassword)       : user.mustChangePassword  
-     
-    // @TODO 
-    if (user.enabled) {
-        user.active             = true
-        user.incorrectPassCount = 0;
-    }
+    user.name                   = name != undefined ? name    : user.name
+    user.university             = university
+    user.classLevel             = classLevel
+    user.major                  = major
+    user.role                   = role
+    user.academicPerformance    = academicPerformance    
+    user.examTakingPerformance  = examTakingPerformance
+    user.learningHabits         = learningHabits
+    user.teachingExperience     = teachingExperience
+    user.enrolledStudent        = enrolledStudent
+    user.classroom              = classroom
 
-    const [err,result] = await tojs(user.save())
+    let [Err,result] = await tojs(user.save())
 
-    if(err) next({msg:'there was an error in operation'})
-    
-    res.payload = result
+    res.payload = result;
 
     return next();
 });

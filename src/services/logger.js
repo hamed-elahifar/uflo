@@ -61,7 +61,7 @@ const loggger = winston.createLogger({
         }),
         new DailyRotateFile({
             level:          getConfig('logLevelToFile') || 'error',
-            filename:       join(__dirname,'..','logs',`%DATE%.log`),
+            filename:       join(__dirname,'..','..','logs',`%DATE%.log`),
             datePattern:    'YYYY-MM-DD',
             zippedArchive:  true,
             maxSize:        '20m',

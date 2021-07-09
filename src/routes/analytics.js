@@ -13,6 +13,8 @@ router.post('/add',[auth],async(req,res,next)=>{
         frameID:    Joi.string().required(),
         startDate:  Joi.string().required(),
         duration:   Joi.string().required(),
+        // TODO
+        //state:    active idle unCertain
 
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
