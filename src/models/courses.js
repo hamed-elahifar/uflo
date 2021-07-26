@@ -59,24 +59,19 @@ courseSchema.virtual('TA',{
 courseSchema.pre('findOneAndDelete', function(next) {
     Chapter.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
+        .catch(errorLog)
+
     Lesson.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
+        .catch(errorLog)
+
     Lobj.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
+        .catch(errorLog)
+        
     Frame.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
+        .catch(errorLog)
 
     next();
 });

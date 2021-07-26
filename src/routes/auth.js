@@ -19,7 +19,7 @@ router.get('/google-jwt', async (req, res, next) => {
 
     const user = await User.findOne({ userID: req.user.userID })
 
-    const token = user.generateAuthToken()
+    const token = user.generateAuthToken(req.ip)
 
     res.payload = token
     return next();

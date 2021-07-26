@@ -42,11 +42,13 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
         desc:               Joi.string().required(),
         lobjID:             Joi.string().required(),
         order:              Joi.number().required(),
-        content:            Joi.array().items(Joi.object({
-            order:          Joi.number().required(),
-            type:           Joi.string().valid('description','quote','definition','table','question','function'),
-            html:           Joi.string().required(),
-        })),
+        frameType:          Joi.string().required().valid('normal','question'),
+        components:         Joi.number().required(),
+        // content:            Joi.array().items(Joi.object({
+        //     order:          Joi.number().required(),
+        //     type:           Joi.string().valid('description','quote','definition','table','question','function'),
+        //     html:           Joi.string().required(),
+        // })),
         voice:              Joi.string().optional().allow(null,''),
 
         token:              Joi.any().allow(null,'').optional(),
@@ -55,7 +57,7 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,lobjID,order,content,voice} = req.body
+    const {title,desc,lobjID,order,frameType,components,voice} = req.body
 
     const lobj = await Lobj.findOne({lobjID})
     if (!lobj) return next({status:404,msg:'lobj not found'})
@@ -73,7 +75,8 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
         title,
         desc,
         order,
-        content,
+        frameType,
+        components,
         voice,
         lobjID:     lobj.lobjID,
         lessonID:   lesson.lessonID,
@@ -97,13 +100,15 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
             title:              Joi.string().required(),
             desc:               Joi.string().required(),
-            frameID:             Joi.string().required(),
+            frameID:            Joi.string().required(),
             order:              Joi.number().required(),
-            content:            Joi.array().items(Joi.object({
-                order:          Joi.number().required(),
-                type:           Joi.string().valid('description','quote','definition','table','question'),
-                html:           Joi.string().required(),
-            })),
+            frameType:          Joi.string().required().valid('normal','question'),
+            components:         Joi.number().required(),
+            // content:            Joi.array().items(Joi.object({
+            //     order:          Joi.number().required(),
+            //     type:           Joi.string().valid('description','quote','definition','table','question'),
+            //     html:           Joi.string().required(),
+            // })),
             voice:              Joi.string().optional().allow(null,''),
 
 
@@ -118,7 +123,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
     for (item of req.body){
 
-        const {frameID,title,desc,order,content,voice} = item
+        const {frameID,title,desc,order,frameType,components,voice} = item
 
         const frame = await Frame.findOne({frameID})
         if (!frame) return next({status:404,msg:'lobj not found'})
@@ -135,11 +140,13 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
         const course = await Course.findOne({courseID:chapter.courseID})
         if (!course) return next({status:404,msg:'course not found'})
     
-        frame.title      = title     ? title     : frame.title
-        frame.desc       = desc      ? desc      : frame.desc
-        frame.order      = order     ? order     : frame.order
-        frame.content    = content   ? content   : frame.content
-        frame.voice      = voice     ? voice     : frame.voice
+        frame.title      = title        ? title         : frame.title
+        frame.desc       = desc         ? desc          : frame.desc
+        frame.order      = order        ? order         : frame.order
+        frame.frameType  = frameType    ? frameType     : frame.frameType
+        frame.components = components   ? components    : frame.components
+        frame.content    = content      ? content       : frame.content
+        frame.voice      = voice        ? voice         : frame.voice
 
         const [err,result] = await tojs(frame.save())
 

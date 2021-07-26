@@ -58,15 +58,12 @@ lessonSchema.pre('findOneAndDelete', function(next) {
 
     Lobj.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
+        .catch(errorLog)
+
     Frame.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
-
+        .catch(errorLog)
+        
     next();
 });
 

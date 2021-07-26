@@ -2,8 +2,6 @@ const jwt       = require('jsonwebtoken');
 const {User}    = require('../models/users');
 
 module.exports  = async function (req, res, next) {
-
-    const ip = req.ip.substr(0, 7) == "::ffff:" ? req.ip.substr(7) : req.ip
     
     // if user came from cookie-session
     if (req.user) {
@@ -11,7 +9,7 @@ module.exports  = async function (req, res, next) {
         // Issue a permant JWT for development 
         // const token = await jwt.sign({ userID: req.user.id }, getConfig('jwt.token'), { expiresIn: '9999 years'});
         // console.log(token)
-        req.user.ip  = ip
+        req.user.ip  = req.ip.substr(0, 7) == "::ffff:" ? req.ip.substr(7) : req.ip
         req.userinfo = req.user
         return next();
     }
@@ -34,10 +32,10 @@ module.exports  = async function (req, res, next) {
         return next({status:401,msg:'Unauthorized!, invalid token'})
     }
 
+    if (req.userinfo.ip != req.ip) return next({status:401,msg:'Your ip address has changed, please log-in again.'})
 
-    if (req.user) { // Added for the default JWT token in front-end
-        req.user.ip = ip
-    }
+    if (req.user) req.user.ip  = req.ip.substr(0, 7) == "::ffff:" ? req.ip.substr(7) : req.ip
+    
 
     return next();
 };

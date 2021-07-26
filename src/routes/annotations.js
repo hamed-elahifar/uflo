@@ -40,7 +40,7 @@ router.post('/add',[auth],async(req,res,next)=>{
     const schema  = Joi.object({
 
         desc:               Joi.string().required(),
-        type:               Joi.string().valid('highlight','annotation','question').required(),
+        type:               Joi.string().required().valid('highlight','annotation','question'),
         tags:               Joi.array() .items(Joi.string()),
 
         selection:          Joi.array() .items(Joi.object({

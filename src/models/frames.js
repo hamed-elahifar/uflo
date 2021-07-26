@@ -19,7 +19,10 @@ const frameSchema  = new mongoose.Schema({
         type:           String,
         required:       true
     },
-    desc:               String,
+    frameType:{
+        type:           String,
+        enum:           ['normal','question']
+    },
     frameID:{
         type:           String,
         default:        () => Math.random().toString(35).substr(2,10),
@@ -49,7 +52,7 @@ const frameSchema  = new mongoose.Schema({
         type:           Number,
         min:            0
     },
-    content:            [contentSchema],
+    components:         String,
     voice:              String,
     sticky:[{
         sticky:         Boolean,

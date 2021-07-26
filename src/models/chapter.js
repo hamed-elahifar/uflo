@@ -44,20 +44,16 @@ chapterSchema.virtual('course',{
 chapterSchema.pre('findOneAndDelete', function(next) {
     Lesson.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
+        .catch(errorLog)
+
     Lobj.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
+        .catch(errorLog)
+
     Frame.deleteMany(this._conditions)
         .then (() => {})
-        .catch(ex => {
-            errorLog(ex)
-        })
-
+        .catch(errorLog)
+        
     next();
 
 });

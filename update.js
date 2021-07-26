@@ -60,3 +60,14 @@ app.get('/:item/:mode?',(req,res)=>{
 
 const port = 7770
 app.listen(port, () => console.log(`update service is running on ${port}`));
+
+
+
+
+
+
+// test = async ()=>{
+//     return 123
+// }
+
+// console.log(test())

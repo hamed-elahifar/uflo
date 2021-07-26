@@ -166,19 +166,20 @@ userSchema.post('init', function(doc) {
     //     this.enabled = false
 });
 
-userSchema.methods.generateAuthToken = function () {
-    // this should not be an arrow function => ()
+userSchema.methods.generateAuthToken = function (ip) {
+    // this should NOT be an arrow function => ()
     return sign({ 
             userID:         this.userID,
             email:          this.email,
             firstname:      this.firstname,
             lastname:       this.lastname,
             role:           this.role,
+            ip:             ip,
         },
         // privateKey,
         getConfig('jwt.token'),
         {
-            expiresIn:      '7d', // 7 Days
+            expiresIn:      '7d',
             // algorithm:      'RS256'
         }
     );

@@ -67,13 +67,9 @@ lobjSchema.virtual('lesson',{
 
 lobjSchema.pre('findOneAndDelete', function(next) {
     Frame.deleteMany(this._conditions)
-        .then (() => {
-            next()
-        })
-        .catch(ex => {
-            errorLog(ex)
-            next()
-        })
+        .then (() => {})
+        .catch(errorLog)
+        next()
 });
 
 const   Lobj = mongoDB.model('lobjs',lobjSchema,'lobjs');
