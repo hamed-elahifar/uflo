@@ -25,6 +25,15 @@ router.get('/google-jwt', async (req, res, next) => {
     return next();
 })
 
+router.get('/logout', function(req, res){
+    req.logOut();
+    // res.clearCookie('connect.sid');
+    req.session.destroy( _ => {
+        res.redirect('/')
+    })
+});
+
+
 
 // router.post('/sign-up',async(req,res,next)=>{
 //   const schema  = Joi.object({
