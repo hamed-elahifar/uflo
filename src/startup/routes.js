@@ -43,7 +43,7 @@ module.exports = function (app) {
 
     app.use(cookieSession({
         name: 'uflo',
-        // keys: ['key1', 'key2']
+        keys: ['key1', 'key2']
     }))
 
     app.use(passport.initialize());
