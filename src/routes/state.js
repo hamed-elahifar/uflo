@@ -12,7 +12,7 @@ const router                    = require('express').Router()
 router.post('/list',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        canvasID:       Joi.string().required(),
+        lobjID:         Joi.string().required(),
 
         token:          Joi.any().optional().allow('',null)
 
@@ -20,9 +20,9 @@ router.post('/list',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {canvasID} = req.body
+    const {lobjID} = req.body
 
-    let query = {canvasID}
+    let query = {lobjID}
 
     const [err,result] = await tojs(State.find(query))
 
@@ -35,6 +35,7 @@ router.post('/list',[auth,isTA],async(req,res,next)=>{
 router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
+        lobjID:         Joi.string().required(),
         canvasID:       Joi.string().required(),
         startFrame:     Joi.string().required(),
         endFrame:       Joi.string().required(),
@@ -64,12 +65,15 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {canvasID,startFrame,endFrame,type,transformation} = req.body
+    const {lobjID,canvasID,startFrame,endFrame,type,transformation} = req.body
+
+    const lobj = await Lobj.findOne({lobjID})
+    if (!lobj) return next({status:404,msg:'lobj not found'})
 
     const canvas = await Canvas.findOne({canvasID})
     if (!canvas) return next({status:404,msg:'canvas not found'})
 
-    const state = new State({canvasID,startFrame,endFrame,type,transformation})
+    const state = new State({lobjID,canvasID,startFrame,endFrame,type,transformation})
 
     const [err,result] = await tojs(state.save())
 
@@ -84,6 +88,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
         
         stateID:        Joi.string().required(),
         canvasID:       Joi.string().required(),
+        lobjID:         Joi.string().required(),
         startFrame:     Joi.string().required(),
         endFrame:       Joi.string().required(),
         type:           Joi.string().required().valid('enter','inview'),
@@ -99,14 +104,18 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {canvasID,stateID,startFrame,endFrame,type,transformation} = req.body
+    const {lobjID,canvasID,stateID,startFrame,endFrame,type,transformation} = req.body
 
     const state = await State.findOne({stateID})
     if (!state) return next({msg:'state not found'})
 
+    const lobj = await Lobj.findOne({lobjID})
+    if (!lobj) return next({status:404,msg:'lobj not found'})
+
     const canvas = await Canvas.findOne({canvasID})
     if (!canvas) return next({status:404,msg:'canvas not found'})
 
+    state.lobjID         = lobjID         ? lobjID         : state.lobjID
     state.canvasID       = canvasID       ? canvasID       : state.canvasID
     state.startFrame     = startFrame     ? startFrame     : state.startFrame
     state.endFrame       = endFrame       ? endFrame       : state.endFrame

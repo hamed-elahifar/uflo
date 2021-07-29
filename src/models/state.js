@@ -14,11 +14,16 @@ const stateSchema = new mongoose.Schema({
         required:       true,
         ref:            'canvas'
     },
-    startFrame:     String,
-    endFrame:       String,
+    lobjID:{
+        type:           String,
+        required:       true,
+        ref:            'lobjs'
+    },
+    startFrame:         String,
+    endFrame:           String,
     type:{
-        type:       String,
-        enum:       ['enter','inview']
+        type:           String,
+        enum:           ['enter','inview']
     },
     transformation:[{
         desmosID:{
@@ -50,6 +55,12 @@ stateSchema.virtual('canvas',{
     ref:            'canvas',
     localField:     'canvasID',
     foreignField:   'canvasID',
+    justOne:         true,
+});
+stateSchema.virtual('lobj',{
+    ref:            'lobjs',
+    localField:     'lobjID',
+    foreignField:   'lobjID',
     justOne:         true,
 });
 

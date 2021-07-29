@@ -25,10 +25,10 @@ const canvasSchema  = new mongoose.Schema({
 });
 
 canvasSchema.virtual('lobj',{
-    ref:           'lobjs',
-    localField:    'lobjID',
-    foreignField:  'lobjID',
-    justOne:        true,
+    ref:             'lobjs',
+    localField:      'lobjID',
+    foreignField:    'lobjID',
+    justOne:          true,
 });
 
 const   Canvas = mongoDB.model('canvas',canvasSchema,'canvas');
