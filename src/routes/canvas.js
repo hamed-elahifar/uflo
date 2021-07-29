@@ -35,10 +35,8 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
 
         lobjID:             Joi.string().required(),
-        startFrame:         Joi.string().required(),
-        endFrame:           Joi.string().required(),
         type:               Joi.string().required().valid('Desmos'),
-        code:               Joi.string().required(),
+        stateZero:          Joi.string().required(),
 
         token:              Joi.any().allow(null,'').optional(),
 
@@ -46,12 +44,12 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {lobjID,startFrame,endFrame,type,code} = req.body
+    const {lobjID,type,stateZero} = req.body
 
     const lobj = await Lobj.findOne({lobjID})
     if (!lobj) return next({status:404,msg:'LOBJ not found'})
 
-    const canvas = new Canvas({lobjID,startFrame,endFrame,type,code})
+    const canvas = new Canvas({lobjID,type,stateZero})
 
     const [err,result] = await tojs(canvas.save())
 
@@ -67,10 +65,8 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
         canvasID:           Joi.string().required(),
         lobjID:             Joi.string().required(),
-        startFrame:         Joi.string().required(),
-        endFrame:           Joi.string().required(),
         type:               Joi.string().required(),
-        code:               Joi.string().required(),
+        stateZero:          Joi.string().required(),
 
         token:              Joi.any().allow(null,'').optional(),
 
@@ -78,7 +74,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {canvasID,lobjID,startFrame,endFrame,type,code} = req.body
+    const {canvasID,lobjID,type,stateZero} = req.body
 
     const canvas = await Canvas.findOne({canvasID})
     if (!canvas) return next({status:404,msg:'canvas not found'})
@@ -86,14 +82,11 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
     const course = await Lobj.findOne({lobjID})
     if (!course) return next({status:404,msg:'LOBJ not found'})
 
-    canvas.lobjID = lobjID ? lobjID : canvas.lobjID
-
-    canvas.startFrame   = startFrame    ? startFrame    : canvas.startFrame
-    canvas.endFrame     = endFrame      ? endFrame      : canvas.endFrame
+    canvas.lobjID       = lobjID        ? lobjID        : canvas.lobjID
     canvas.type         = type          ? type          : canvas.type
-    canvas.code         = code          ? code          : canvas.code
+    canvas.stateZero    = stateZero     ? stateZero     : canvas.stateZero
 
-    const [err,result] = await tojs(canvas.save())
+    const [err,result]  = await tojs(canvas.save())
 
     if (err) return next({status:500,msg:'faild',error:err})
 

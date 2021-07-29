@@ -35,12 +35,12 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
-        title:              Joi.string().required(),
+        name:               Joi.string().required(),
         desc:               Joi.string().required(),
         lessonID:           Joi.string().required(),
         order:              Joi.number().required(),
-        startDate:          Joi.string().optional().allow(null,''),
-        url:                Joi.string().optional().allow(null,''),
+        frames:             Joi.array().items(Joi.string()),
+        code:               Joi.string().optional().allow(null,''),
 
         token:              Joi.any().allow(null,'').optional(),
 
@@ -48,7 +48,7 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,lessonID,order,startDate,url} = req.body
+    const {name,desc,lessonID,order,frames,code} = req.body
 
     const lesson = await Lesson.findOne({lessonID})
     if (!lesson) return next({status:404,msg:'lesson not found'})
@@ -60,12 +60,12 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     if (!course) return next({status:404,msg:'course not found'})
 
     const lobj = new Lobj({
-        title,
+        name,
         desc,
         order,
-        startDate,
+        frames,
         lessonID,
-        url,
+        code,
         chapterID:  chapter.chapterID,
         courseID:   course.courseID,
     })
@@ -85,12 +85,12 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
         Joi.object({
 
             lessonID:           Joi.string().required(),
-            title:              Joi.string().required(),
+            name:               Joi.string().required(),
             desc:               Joi.string().required(),
             lobjID:             Joi.string().required(),
             order:              Joi.number().required(),
-            startDate:          Joi.string().optional().allow(null,''),
-            url:                Joi.string().optional().allow(null,''),
+            frames:             Joi.array().items(Joi.string()),
+            code:               Joi.string().optional().allow(null,''),
 
             token:              Joi.any().allow(null,'').optional(),
 
@@ -103,7 +103,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
     for (item of req.body){
 
-        const {lessonID,title,desc,lobjID,order,startDate,url} = item
+        const {lessonID,name,desc,lobjID,order,frames,code} = item
 
         const lobj = await Lobj.findOne({lobjID})
         if (!lobj) return next({status:404,msg:'lobj not found'})
@@ -117,12 +117,12 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
         const course = await Course.findOne({courseID:chapter.courseID}).lean()
         if (!course) return next({status:404,msg:'course not found'})
     
-        lobj.title      = title     ? title     : lobj.title
+        lobj.name       = name      ? name      : lobj.name
         lobj.desc       = desc      ? desc      : lobj.desc
         lobj.lessonID   = lessonID  ? lessonID  : lobj.lessonID
         lobj.order      = order     ? order     : lobj.order
-        lobj.startDate  = startDate ? startDate : lobj.startDate
-        lobj.url        = url       ? url       : lobj.url
+        lobj.frames     = frames    ? frames    : lobj.frames
+        lobj.code       = code      ? code      : lobj.code
 
         const [err,result] = await tojs(lobj.save())
 

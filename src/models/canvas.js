@@ -13,13 +13,11 @@ const canvasSchema  = new mongoose.Schema({
         required:       true,
         ref:            'lobjs'
     },
-    startFrame:         String,
-    endFrame:           String,
     type:{
         type:           String,
         enum:           ['Desmos']
     },
-    code:               String,
+    stateZero:          String,
 
 },{
     timestamps:          true,

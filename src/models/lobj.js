@@ -6,7 +6,7 @@ const {mongoDB}    = require('../startup/mongodb')
 
 const lobjSchema = new mongoose.Schema({
 
-    title:{
+    name:{
         type:           String,
         required:       true
     },
@@ -35,11 +35,12 @@ const lobjSchema = new mongoose.Schema({
         type:           Number,
         min:            0
     },
-    startDate:{
-        type:           Date,
-        default:        Date.now
+    frames:{
+        type:           String,
+        required:       true,
+        ref:            'frames'
     },
-    url:                String,
+    code:               String,
 
 },{
     timestamps:          true,
@@ -64,12 +65,19 @@ lobjSchema.virtual('lesson',{
     foreignField:  'lessonID',
     justOne:        true,
 });
+lobjSchema.virtual('framesArray',{
+    ref:           'frames',
+    localField:    'frames',
+    foreignField:  'frameID',
+    justOne:        true,
+});
 
 lobjSchema.pre('findOneAndDelete', function(next) {
     Frame.deleteMany(this._conditions)
         .then (() => {})
         .catch(errorLog)
-        next()
+
+    next()
 });
 
 const   Lobj = mongoDB.model('lobjs',lobjSchema,'lobjs');

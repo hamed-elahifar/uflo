@@ -9,6 +9,11 @@ const stateSchema = new mongoose.Schema({
         default:        () => Math.random().toString(35).substr(2,6),
         unique:         true,
     },
+    canvasID:{
+        type:           String,
+        required:       true,
+        ref:            'canvas'
+    },
     startFrame:     String,
     endFrame:       String,
     type:{
@@ -16,14 +21,36 @@ const stateSchema = new mongoose.Schema({
         enum:       ['enter','inview']
     },
     transformation:[{
-        compId:     String,
-        attribute:  String,
-        value:      String,
+        desmosID:{
+            type:       String,
+            required:   true
+        },
+        compId:{
+            type:       String,
+            required:   true
+        },
+        attribute:      String,
+        value:          String,
+        latex:          String,
+        sliderBounds:{
+            min:        String,
+            max:        String,
+            step:       String,
+        },
+        customAttr:     String,
+        customTrans:    String,
     }]
 
 },{
     timestamps:          true,
     toJSON:              {virtuals:true},
+});
+
+stateSchema.virtual('canvas',{
+    ref:            'canvas',
+    localField:     'canvasID',
+    foreignField:   'canvasID',
+    justOne:         true,
 });
 
 const   State = mongoDB.model('states',stateSchema,'states');

@@ -12,7 +12,6 @@ const router                    = require('express').Router()
 router.post('/list',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        lobjID:         Joi.string().required(),
         canvasID:       Joi.string().required(),
 
         token:          Joi.any().optional().allow('',null)
@@ -21,9 +20,9 @@ router.post('/list',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {lobjID,canvasID} = req.body
+    const {canvasID} = req.body
 
-    let query = {lobjID,canvasID}
+    let query = {canvasID}
 
     const [err,result] = await tojs(State.find(query))
 
@@ -36,7 +35,6 @@ router.post('/list',[auth,isTA],async(req,res,next)=>{
 router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const schema  = Joi.object({
 
-        lobjID:         Joi.string().required(),
         canvasID:       Joi.string().required(),
         startFrame:     Joi.string().required(),
         endFrame:       Joi.string().required(),
@@ -44,24 +42,34 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
 
         transformation: Joi.array().items(
             Joi.object({
-                compId:     Joi.string().required(),
-                attribute:  Joi.string().required(),
-                value:      Joi.string().required(),
+                desmosID:           Joi.string().required(),
+                compId:             Joi.string().required(),
+                attribute:          Joi.string().optional(),
+                value:              Joi.string().optional(),
+
+                latex:              Joi.string().optional(),
+                sliderBounds:       Joi.array().items(
+                    Joi.object({
+                        min:        Joi.string().optional(),
+                        max:        Joi.string().optional(),
+                        step:       Joi.string().optional(),
+                    }).optional(),
+                ).optional(),
+
+                customAttr:         Joi.string().optional(),
+                customTrans:        Joi.string().optional(),
             })
         )
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {lobjID,canvasID,startFrame,endFrame,type,transformation} = req.body
-
-    const lobj = await Lobj.findOne({lobjID})
-    if (!lobj) return next({status:404,msg:'lobj not found'})
+    const {canvasID,startFrame,endFrame,type,transformation} = req.body
 
     const canvas = await Canvas.findOne({canvasID})
     if (!canvas) return next({status:404,msg:'canvas not found'})
 
-    const state = new State({lobjID,canvasID,startFrame,endFrame,type,transformation})
+    const state = new State({canvasID,startFrame,endFrame,type,transformation})
 
     const [err,result] = await tojs(state.save())
 
@@ -75,7 +83,6 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
         
         stateID:        Joi.string().required(),
-        lobjID:         Joi.string().required(),
         canvasID:       Joi.string().required(),
         startFrame:     Joi.string().required(),
         endFrame:       Joi.string().required(),
@@ -92,18 +99,14 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {lobjID,canvasID,stateID,startFrame,endFrame,type,transformation} = req.body
+    const {canvasID,stateID,startFrame,endFrame,type,transformation} = req.body
 
     const state = await State.findOne({stateID})
     if (!state) return next({msg:'state not found'})
 
-    const lobj = await Lobj.findOne({lobjID})
-    if (!lobj) return next({status:404,msg:'lobj not found'})
-
     const canvas = await Canvas.findOne({canvasID})
     if (!canvas) return next({status:404,msg:'canvas not found'})
 
-    state.lobjID         = lobjID         ? lobjID         : state.lobjID
     state.canvasID       = canvasID       ? canvasID       : state.canvasID
     state.startFrame     = startFrame     ? startFrame     : state.startFrame
     state.endFrame       = endFrame       ? endFrame       : state.endFrame
