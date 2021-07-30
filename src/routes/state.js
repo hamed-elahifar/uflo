@@ -87,17 +87,30 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
     const schema  = Joi.object({
         
         stateID:        Joi.string().required(),
-        canvasID:       Joi.string().required(),
         lobjID:         Joi.string().required(),
+        canvasID:       Joi.string().required(),
         startFrame:     Joi.string().required(),
         endFrame:       Joi.string().required(),
         type:           Joi.string().required().valid('enter','inview'),
 
         transformation: Joi.array().items(
             Joi.object({
-                compId:     Joi.string().required(),
-                attribute:  Joi.string().required(),
-                value:      Joi.string().required(),
+                desmosID:           Joi.string().required(),
+                compId:             Joi.string().required(),
+                attribute:          Joi.string().optional(),
+                value:              Joi.string().optional(),
+
+                latex:              Joi.string().optional(),
+                sliderBounds:       Joi.array().items(
+                    Joi.object({
+                        min:        Joi.string().optional(),
+                        max:        Joi.string().optional(),
+                        step:       Joi.string().optional(),
+                    }).optional(),
+                ).optional(),
+
+                customAttr:         Joi.string().optional(),
+                customTrans:        Joi.string().optional(),
             })
         )
     })
