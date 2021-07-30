@@ -25,7 +25,7 @@ const stateSchema = new mongoose.Schema({
         type:           String,
         enum:           ['enter','inview']
     },
-    transformation:[{
+    transformation:{
         desmosID:{
             type:       String,
             required:   true
@@ -44,7 +44,7 @@ const stateSchema = new mongoose.Schema({
         },
         customAttr:     String,
         customTrans:    String,
-    }]
+    }
 
 },{
     timestamps:          true,

@@ -41,26 +41,25 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
         endFrame:       Joi.string().required(),
         type:           Joi.string().required().valid('enter','inview'),
 
-        transformation: Joi.array().items(
-            Joi.object({
-                desmosID:           Joi.string().required(),
-                compId:             Joi.string().required(),
-                attribute:          Joi.string().optional(),
-                value:              Joi.string().optional(),
+        transformation: Joi.object({
+            desmosID:           Joi.string().required(),
+            compId:             Joi.string().required(),
+            attribute:          Joi.string().optional(),
+            value:              Joi.string().optional(),
 
-                latex:              Joi.string().optional(),
-                sliderBounds:       Joi.array().items(
-                    Joi.object({
-                        min:        Joi.string().optional(),
-                        max:        Joi.string().optional(),
-                        step:       Joi.string().optional(),
-                    }).optional(),
-                ).optional(),
+            latex:              Joi.string().optional(),
+            sliderBounds:       Joi.array().items(
+                Joi.object({
+                    min:        Joi.string().optional(),
+                    max:        Joi.string().optional(),
+                    step:       Joi.string().optional(),
+                }).optional(),
+            ).optional(),
 
-                customAttr:         Joi.string().optional(),
-                customTrans:        Joi.string().optional(),
-            })
-        )
+            customAttr:         Joi.string().optional(),
+            customTrans:        Joi.string().optional(),
+        })
+        
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
@@ -93,26 +92,25 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
         endFrame:       Joi.string().required(),
         type:           Joi.string().required().valid('enter','inview'),
 
-        transformation: Joi.array().items(
-            Joi.object({
-                desmosID:           Joi.string().required(),
-                compId:             Joi.string().required(),
-                attribute:          Joi.string().optional(),
-                value:              Joi.string().optional(),
+        transformation: Joi.object({
+            desmosID:           Joi.string().required(),
+            compId:             Joi.string().required(),
+            attribute:          Joi.string().optional(),
+            value:              Joi.string().optional(),
 
-                latex:              Joi.string().optional(),
-                sliderBounds:       Joi.array().items(
-                    Joi.object({
-                        min:        Joi.string().optional(),
-                        max:        Joi.string().optional(),
-                        step:       Joi.string().optional(),
-                    }).optional(),
-                ).optional(),
+            latex:              Joi.string().optional(),
+            sliderBounds:       Joi.array().items(
+                Joi.object({
+                    min:        Joi.string().optional(),
+                    max:        Joi.string().optional(),
+                    step:       Joi.string().optional(),
+                }).optional(),
+            ).optional(),
 
-                customAttr:         Joi.string().optional(),
-                customTrans:        Joi.string().optional(),
-            })
-        )
+            customAttr:         Joi.string().optional(),
+            customTrans:        Joi.string().optional(),
+        })
+        
     })
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
