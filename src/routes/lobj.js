@@ -180,4 +180,31 @@ router.post('/full',[auth],async(req,res,next)=>{
     
     return next();
 });
+router.post('/complete',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+        
+        lobjID:     Joi.string().required(),
+
+        token:      Joi.any().optional().allow('',null)
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {lobjID} = req.body
+
+    let query = {lobjID}
+
+    let [err,result] = await tojs(Lobj.find(query).lean())
+
+    let full = await Promise.all(
+        result.map(async lobj => {
+            lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
+            return lobj
+        })
+    )
+
+    res.payload = full
+    
+    return next();
+});
 module.exports = router;
