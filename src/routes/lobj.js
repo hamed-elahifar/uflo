@@ -4,6 +4,8 @@ const router            = require('express').Router()
   ,   {Lesson}          = require('../models/lessons')
   ,   {Lobj}            = require('../models/lobj')
   ,   {Frame}           = require('../models/frames')
+  ,   {Canvas}          = require('../models/canvas')
+  ,   {State}           = require('../models/state')
 
   ,   Joi               = require('@hapi/joi')
 
@@ -172,6 +174,43 @@ router.post('/full',[auth],async(req,res,next)=>{
     let full = await Promise.all(
         result.map(async lobj => {
             lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
+            return lobj
+        })
+    )
+
+    res.payload = full
+    
+    return next();
+});
+router.post('/complete',[auth],async(req,res,next)=>{
+    const schema  = Joi.object({
+        
+        lobjID:     Joi.string().required(),
+
+        token:      Joi.any().optional().allow('',null)
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {lobjID} = req.body
+
+    let query = {lobjID}
+
+    let [err,result] = await tojs(Lobj.find(query).lean())
+
+    let full = await Promise.all(
+        result.map(async lobj => {
+            lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
+            return lobj
+        }),
+
+        result.map(async lobj => {
+            lobj.canvases = await Canvas.find({lobjID:lobj.lobjID}).lean();
+            return lobj
+        }),
+
+        result.map(async lobj => {
+            lobj.states = await State.find({lobjID:lobj.lobjID}).lean();
             return lobj
         })
     )
