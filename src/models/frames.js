@@ -24,8 +24,8 @@ const frameSchema  = new mongoose.Schema({
         enum:           ['normal','question']
     },
     frameID:{
-        type:           String,
-        default:        () => Math.random().toString(35).substr(2,10),
+        type:           Number,
+        // default:        () => Math.random().toString(35).substr(2,10),
         unique:         true,
     },
     lobjID:{

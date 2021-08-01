@@ -38,6 +38,7 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
 
     const schema  = Joi.object({
 
+        frameID:            Joi.number().required(),
         title:              Joi.string().required(),
         desc:               Joi.string().required(),
         lobjID:             Joi.string().required(),
@@ -57,7 +58,7 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,lobjID,order,frameType,components,voice} = req.body
+    const {frameID,title,desc,lobjID,order,frameType,components,voice} = req.body
 
     const lobj = await Lobj.findOne({lobjID})
     if (!lobj) return next({status:404,msg:'lobj not found'})
@@ -72,6 +73,7 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
     if (!course) return next({status:404,msg:'course not found'})
 
     const frame = new Frame({
+        frameID,
         title,
         desc,
         order,
@@ -100,7 +102,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
             title:              Joi.string().required(),
             desc:               Joi.string().required(),
-            frameID:            Joi.string().required(),
+            frameID:            Joi.number().required(),
             order:              Joi.number().required(),
             frameType:          Joi.string().required().valid('normal','question'),
             components:         Joi.number().required(),
