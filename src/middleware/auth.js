@@ -32,9 +32,6 @@ module.exports  = async function (req, res, next) {
         return next({status:401,msg:'Unauthorized!, invalid token'})
     }
 
-    console.log(req.userinfo.ip)
-    console.log(req.ip)
-
     if (req.userinfo.ip != req.ip) return next({status:401,msg:'Your ip address has changed, please log-in again.'})
 
     if (req.user) req.user.ip  = req.ip.substr(0, 7) == "::ffff:" ? req.ip.substr(7) : req.ip
