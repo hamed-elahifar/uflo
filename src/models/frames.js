@@ -19,45 +19,46 @@ const frameSchema  = new mongoose.Schema({
         type:           String,
         required:       true
     },
-    frameType:{
-        type:           String,
-        enum:           ['normal','question']
-    },
     frameID:{
         type:           Number,
         // default:        () => Math.random().toString(35).substr(2,10),
         unique:         true,
+    },
+    frameType:{
+        type:           String,
+        // enum:           ['normal','question']
     },
     lobjID:{
         type:           String,
         required:       true,
         ref:            'lobjs'
     },
-    courseID:{
-        type:           String,
-        required:       true,
-        ref:            'courses'
-    },
-    chapterID:{
-        type:           String,
-        required:       true,
-        ref:            'chapters'
-    },
-    lessonID:{
-        type:           String,
-        required:       true,
-        ref:            'lessons'
-    },
-    order:{
-        type:           Number,
-        min:            0
-    },
-    components:         String,
-    voice:              String,
-    sticky:[{
-        sticky:         Boolean,
-        height:         String,
-    }],
+    tags:               String,
+    draggables:         String,
+    // courseID:{
+    //     type:           String,
+    //     required:       true,
+    //     ref:            'courses'
+    // },
+    // chapterID:{
+    //     type:           String,
+    //     required:       true,
+    //     ref:            'chapters'
+    // },
+    // lessonID:{
+    //     type:           String,
+    //     required:       true,
+    //     ref:            'lessons'
+    // },
+    // order:{
+    //     type:           Number,
+    //     min:            0
+    // },
+
+    // sticky:[{
+    //     sticky:         Boolean,
+    //     height:         String,
+    // }],
 
 },{
     timestamps:          true,
