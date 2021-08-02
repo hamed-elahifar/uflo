@@ -26,7 +26,7 @@ const stateSchema = new mongoose.Schema({
         enum:           ['enter','inview']
     },
     transformation:[{
-        desmosID:{
+        desmosId:{
             type:       String,
             required:   true
         },
@@ -37,6 +37,7 @@ const stateSchema = new mongoose.Schema({
         attribute:      String,
         value:          String,
         latex:          String,
+        expidx:         String,
         sliderBounds:{
             min:        String,
             max:        String,

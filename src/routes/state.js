@@ -43,16 +43,17 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
 
         transformation: Joi.array().items(
             Joi.object({
-                desmosID:           Joi.string().required(),
+                desmosId:           Joi.string().required(),
                 compId:             Joi.string().required(),
                 attribute:          Joi.string().optional(),
                 value:              Joi.string().optional(),
                 latex:              Joi.string().optional(),
+                expidx:             Joi.string().optional(),
 
                 sliderBounds:       Joi.object({
-                        min:        Joi.string().optional(),
-                        max:        Joi.string().optional(),
-                        step:       Joi.string().optional(),
+                    min:            Joi.string().optional(),
+                    max:            Joi.string().optional(),
+                    step:           Joi.string().optional(),
                 }).optional(),
                 
                 customAttr:         Joi.string().optional(),
@@ -93,11 +94,12 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
         transformation: Joi.array().items(
             Joi.object({
-                desmosID:           Joi.string().required(),
+                desmosId:           Joi.string().required(),
                 compId:             Joi.string().required(),
                 attribute:          Joi.string().optional(),
                 value:              Joi.string().optional(),
                 latex:              Joi.string().optional(),
+                expidx:             Joi.string().optional(),
 
                 sliderBounds:       Joi.object({
                     min:            Joi.string().optional(),
