@@ -20,55 +20,49 @@ const frameSchema  = new mongoose.Schema({
     },
     tags:               String,
     draggables:         String,
-    order:              Number,
-    // courseID:{
-    //     type:           String,
-    //     required:       true,
-    //     ref:            'courses'
-    // },
-    // chapterID:{
-    //     type:           String,
-    //     required:       true,
-    //     ref:            'chapters'
-    // },
-    // lessonID:{
-    //     type:           String,
-    //     required:       true,
-    //     ref:            'lessons'
-    // },
-    // order:{
-    //     type:           Number,
-    //     min:            0
-    // },
-
-    // sticky:[{
-    //     sticky:         Boolean,
-    //     height:         String,
-    // }],
+    courseID:{
+        type:           String,
+        required:       true,
+        ref:            'courses'
+    },
+    chapterID:{
+        type:           String,
+        required:       true,
+        ref:            'chapters'
+    },
+    lessonID:{
+        type:           String,
+        required:       true,
+        ref:            'lessons'
+    },
+    order:{
+        type:           Number,
+        min:            0
+    },
 
 },{
     timestamps:          true,
     toJSON:              {virtuals:true},
 });
 
-// frameSchema.virtual('course',{
-//     ref:           'courses',
-//     localField:    'courseID',
-//     foreignField:  'courseID',
-//     justOne:        true,
-// });
-// frameSchema.virtual('chapter',{
-//     ref:           'chapters',
-//     localField:    'chapterID',
-//     foreignField:  'chapterID',
-//     justOne:        true,
-// });
-// frameSchema.virtual('lesson',{
-//     ref:           'lessons',
-//     localField:    'lessonID',
-//     foreignField:  'lessonID',
-//     justOne:        true,
-// });
+frameSchema.virtual('course',{
+    ref:           'courses',
+    localField:    'courseID',
+    foreignField:  'courseID',
+    justOne:        true,
+});
+frameSchema.virtual('chapter',{
+    ref:           'chapters',
+    localField:    'chapterID',
+    foreignField:  'chapterID',
+    justOne:        true,
+});
+frameSchema.virtual('lesson',{
+    ref:           'lessons',
+    localField:    'lessonID',
+    foreignField:  'lessonID',
+    justOne:        true,
+});
 frameSchema.virtual('lobj',{
     ref:           'lobjs',
     localField:    'lobjID',

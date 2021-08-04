@@ -66,7 +66,12 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
     // const course = await Course.findOne({courseID:chapter.courseID}).lean()
     // if (!course) return next({status:404,msg:'course not found'})
 
-    const frame = new Frame({title,frameID,frameType,lobjID,tags,draggables,order})
+    const frame = new Frame({
+        title,frameID,frameType,lobjID,tags,draggables,order,
+        courseID:   lobj.courseID,
+        chapterID:  lobj.chapterID,
+        lessonID:   lobj.lessonID
+    })
 
     const [err,result] = await tojs(frame.save())
 
@@ -110,7 +115,12 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
         if (!frame) {
 
-            await Frame.create({title,frameID,frameType,lobjID,tags,draggables,order})
+            await Frame.create({
+                title,frameID,frameType,lobjID,tags,draggables,order,
+                courseID:   lobj.courseID,
+                chapterID:  lobj.chapterID,
+                lessonID:   lobj.lessonID
+            })
 
         } else {
 
@@ -121,7 +131,11 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
             frame.tags          = tags          ? tags          : frame.tags
             frame.draggables    = draggables    ? draggables    : frame.draggables
             frame.order         = order         ? order         : frame.order
-            
+
+            frame.courseID      = lobj.courseID
+            frame.chapterID     = lobj.chapterID
+            frame.lessonID      = lobj.lessonID
+
             const [err,result] = await tojs(frame.save())
             
             if (err) arrayOfErrors.push(err)
