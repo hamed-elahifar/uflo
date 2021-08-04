@@ -103,7 +103,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
         const {title,frameID,frameType,lobjID,tags,draggables,order} = item
 
-        const lobj = await Lobj.findOne({lobjID:frame.lobjID})
+        const lobj = await Lobj.findOne({lobjID})
         if (!lobj) return next({status:404,msg:'lobj not found'})
 
         let frame = await Frame.findOne({frameID})
