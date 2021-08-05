@@ -24,7 +24,7 @@ router.post('/list',[auth,isTA],async(req,res,next)=>{
 
     let query = {lobjID}
 
-    const [err,result] = await tojs(State.find(query))
+    const [err,result] = await tojs(State.find(query).select('-id -_id -__v -createdAt -updatedAt'))
 
     if (err) return next({status:500,msg:'Error',error:err})
 

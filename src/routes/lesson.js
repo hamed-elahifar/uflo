@@ -23,7 +23,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     let query = {chapterID}
 
-    const [err,result] = await tojs(Lesson.find(query))
+    const [err,result] = await tojs(Lesson.find(query).select('-id -_id -__v -createdAt -updatedAt'))
 
     res.payload = result
     

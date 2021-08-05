@@ -25,7 +25,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     let query = {courseID}
 
-    const [err,result] = await tojs(Chapter.find(query))
+    const [err,result] = await tojs(Chapter.find(query).select('-id -_id -__v -createdAt -updatedAt'))
 
     if (err) return next({status:500,msg:'Error',error:err})
 

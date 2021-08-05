@@ -27,7 +27,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     let query = {lessonID}
 
-    const [err,result] = await tojs(Lobj.find(query))
+    const [err,result] = await tojs(Lobj.find(query).select('-id -_id -__v -createdAt -updatedAt'))
 
     res.payload = result
     
@@ -173,7 +173,7 @@ router.post('/full',[auth],async(req,res,next)=>{
 
     let full = await Promise.all(
         result.map(async lobj => {
-            lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
+            lobj.frames = await Frame.find({lobjID:lobj.lobjID}).select('-id -_id -__v -createdAt -updatedAt').lean();
             return lobj
         })
     )
@@ -200,17 +200,17 @@ router.post('/complete',[auth],async(req,res,next)=>{
 
     let full = await Promise.all(
         result.map(async lobj => {
-            lobj.frames = await Frame.find({lobjID:lobj.lobjID}).lean();
+            lobj.frames = await Frame.find({lobjID:lobj.lobjID}).select('-id -_id -__v -createdAt -updatedAt').lean();
             return lobj
         }),
 
         result.map(async lobj => {
-            lobj.canvases = await Canvas.find({lobjID:lobj.lobjID}).lean();
+            lobj.canvases = await Canvas.find({lobjID:lobj.lobjID}).select('-id -_id -__v -createdAt -updatedAt').lean();
             return lobj
         }),
 
         result.map(async lobj => {
-            lobj.states = await State.find({lobjID:lobj.lobjID}).lean();
+            lobj.states = await State.find({lobjID:lobj.lobjID}).select('-id -_id -__v -createdAt -updatedAt').lean();
             return lobj
         })
     )

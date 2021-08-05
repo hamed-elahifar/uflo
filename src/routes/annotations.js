@@ -25,6 +25,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     const [err,result] = await tojs(
         Annotation  .find(query)
+                    .select('-id -_id -__v -createdAt -updatedAt')
                     .populate(
                         {path:'likesInfo',select:'-_id userID firstname lastname'}
                     )

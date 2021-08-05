@@ -47,7 +47,7 @@ router.post('/students',[auth,isTA],async(req,res,next)=>{
 
     const {courseID} = req.body
 
-    const students = await User.find({courseIDs:courseID})
+    const students = await User.find({courseIDs:courseID}).select('-id -_id -__v -createdAt -updatedAt')
 
     res.payload = students
     

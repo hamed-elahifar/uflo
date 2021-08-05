@@ -28,7 +28,7 @@ router.post('/list',[auth],async(req,res,next)=>{
 
     let query = {lobjID}
 
-    const [err,result] = await tojs(Frame.find(query))
+    const [err,result] = await tojs(Frame.find(query).select('-id -_id -__v -createdAt -updatedAt'))
 
     res.payload = result
     
