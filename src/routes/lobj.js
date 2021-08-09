@@ -41,7 +41,7 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
         desc:               Joi.string().required(),
         lessonID:           Joi.string().required(),
         order:              Joi.number().required(),
-        frames:             Joi.array().items(Joi.string()),
+        frames:             Joi.array().items(Joi.number()),
         code:               Joi.string().optional().allow(null,''),
 
         token:              Joi.any().allow(null,'').optional(),
@@ -91,7 +91,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
             desc:               Joi.string().required(),
             lobjID:             Joi.string().required(),
             order:              Joi.number().required(),
-            frames:             Joi.array().items(Joi.string()),
+            frames:             Joi.array().items(Joi.number()),
             code:               Joi.string().optional().allow(null,''),
 
             token:              Joi.any().allow(null,'').optional(),

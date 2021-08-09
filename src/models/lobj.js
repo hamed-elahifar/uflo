@@ -36,8 +36,8 @@ const lobjSchema = new mongoose.Schema({
         min:            0
     },
     frames:{
-        type:           String,
-        required:       true,
+        type:           Array,
+        of:             Number,
         ref:            'frames'
     },
     code:               String,
