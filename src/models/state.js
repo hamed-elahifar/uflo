@@ -9,9 +9,9 @@ const stateSchema = new mongoose.Schema({
         default:        () => Math.random().toString(35).substr(2,6),
         unique:         true,
     },
-    canvasID:{
-        type:           String,
-        required:       true,
+    canvasIDs:{
+        type:           Array,
+        of:             String,
         ref:            'canvas'
     },
     lobjID:{
@@ -54,9 +54,9 @@ const stateSchema = new mongoose.Schema({
 
 stateSchema.virtual('canvas',{
     ref:            'canvas',
-    localField:     'canvasID',
+    localField:     'canvasIDs',
     foreignField:   'canvasID',
-    justOne:         true,
+    // justOne:         true,
 });
 stateSchema.virtual('lobj',{
     ref:            'lobjs',

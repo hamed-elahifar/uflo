@@ -59,38 +59,59 @@ router.post('/add',[auth,isTA],async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',[auth,isTA],async(req,res,next)=>{
+router.post('/upsert',[auth,isTA],async(req,res,next)=>{
 
-    const schema  = Joi.object({
+    const schema  = Joi.array().items(
 
-        canvasID:           Joi.string().required(),
-        lobjID:             Joi.string().required(),
-        type:               Joi.string().required(),
-        stateZero:          Joi.string().required(),
+        Joi.object({
 
-        token:              Joi.any().allow(null,'').optional(),
+            canvasID:           Joi.string().optional(),
+            lobjID:             Joi.string().required(),
+            type:               Joi.string().required(),
+            stateZero:          Joi.string().required(),
 
-    })
+            token:              Joi.any().allow(null,'').optional(),
+
+        })
+    )
+
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {canvasID,lobjID,type,stateZero} = req.body
+    let arrayOfErrors = []
 
-    const canvas = await Canvas.findOne({canvasID})
-    if (!canvas) return next({status:404,msg:'canvas not found'})
+    for (item of req.body){
 
-    const course = await Lobj.findOne({lobjID})
-    if (!course) return next({status:404,msg:'LOBJ not found'})
+        const {canvasID,lobjID,type,stateZero} = item
 
-    canvas.lobjID       = lobjID        ? lobjID        : canvas.lobjID
-    canvas.type         = type          ? type          : canvas.type
-    canvas.stateZero    = stateZero     ? stateZero     : canvas.stateZero
+        const lobj = await Lobj.findOne({lobjID})
+        if (!lobj) return next({status:404,msg:'LOBJ not found'})
 
-    const [err,result]  = await tojs(canvas.save())
+        const canvas = await Canvas.findOne({canvasID})
 
-    if (err) return next({status:500,msg:'faild',error:err})
+        if (!canvas) {
 
-    res.payload = result
+            await Canvas.create({
+                lobjID,type,stateZero
+            })
+
+        } else {
+
+            canvas.lobjID       = lobjID        ? lobjID        : canvas.lobjID
+            canvas.type         = type          ? type          : canvas.type
+            canvas.stateZero    = stateZero     ? stateZero     : canvas.stateZero
+        
+            const [err,result]  = await tojs(canvas.save())
+
+            if (err) arrayOfErrors.push(err)
+
+        }
+
+    }
+
+    if (!arrayOfErrors.isEmpty) return next({status:500,msg:'faild',error:err})
+
+    res.payload = {msg:'successful'}
 
     return next();
 });

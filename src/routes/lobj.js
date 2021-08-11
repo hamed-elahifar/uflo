@@ -80,7 +80,7 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
 
     return next();
 });
-router.post('/update',[auth,isTA],async(req,res,next)=>{
+router.post('/upsert',[auth,isTA],async(req,res,next)=>{
 
     const schema  = Joi.array().items(
     
