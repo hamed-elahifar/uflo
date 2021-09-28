@@ -3,6 +3,9 @@ const router                    = require('express').Router()
   ,   {Course}                  = require('../models/courses')
 
   ,   Joi                       = require('@hapi/joi')
+  ,   multer                    = require('multer')
+  ,   path                      = require('path')
+  ,   fs                        = require('fs')
 
   ,  {sysAdmin,isProfessor,isTA}
                                 = require('../middleware/sysRoles')
@@ -33,18 +36,22 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
                                         .when('role',{'is':'student',then:Joi.string().required(),otherwise:Joi.forbidden()}),
 
         major:              Joi.array().items(Joi.string()).required(),
-
         role:               Joi.string().required().valid('student','professor'),
+        examType:           Joi.string().required().valid('analytical','memorization'),
+        questionType:       Joi.string().required().valid('multiple choice','free response'),
+        theme:              Joi.string().required().valid('flow','magma','peace','quantum','zen'),
+        mode:               Joi.string().required().valid('dark','light'),
+        textSize:           Joi.string().required().valid('small','default','large','extra large'),
 
         academicPerformance:            Joi.object().keys({
             CurrentAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average'),
             DesiredAcademicPerformance: Joi.string().required().valid('Excellent','Good','Average','Below Average')
         })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
 
-        examTakingPerformance:          Joi.object().keys({
-            ExamType:                   Joi.string().required().valid('Analytical','Memorization'),
-            QuestionType:               Joi.string().required().valid('Multiple Choice','Free Response'),
-        })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
+        // examTakingPerformance:          Joi.object().keys({
+        //     ExamType:                   Joi.string().required().valid('Analytical','Memorization'),
+        //     QuestionType:               Joi.string().required().valid('Multiple Choice','Free Response'),
+        // })                                 .when('role',{'is':'student',then:Joi.object().required(),otherwise:Joi.forbidden()}),
 
         learningHabits:             Joi.object().keys({
             ProcrastinationLevel:   Joi.string().required().valid('High','Medium','Low'),
@@ -62,7 +69,8 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {name,university,classLevel,major,role,
+    const {name,university,classLevel,major,role,examType,
+        questionType,theme,mode,textSize,
         academicPerformance,examTakingPerformance,learningHabits,
         teachingExperience,enrolledStudent,classroom} = req.body
 
@@ -77,6 +85,11 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     user.classLevel             = classLevel
     user.major                  = major
     user.role                   = role
+    user.examType               = examType
+    user.questionType           = questionType
+    user.theme                  = theme
+    user.mode                   = mode
+    user.textSize               = textSize
     user.academicPerformance    = academicPerformance    
     user.examTakingPerformance  = examTakingPerformance
     user.learningHabits         = learningHabits
@@ -302,6 +315,42 @@ router.post('/delete',[auth,sysAdmin],async(req,res,next)=>{
     res.payload = {status:'success',status:200,msg:'Deletion successful'}
 
     return next();
+});
+
+const storage     = multer.diskStorage({
+    destination:    (req,file,cb)=>{cb(null,'avatar')},
+    filename:       (req,file,cb)=>{
+        cb(null, `${req.userinfo.userID}.${file.originalname.split('.').last}`)
+    }
+});
+const fileFilter  = (req,file,cb) => {cb(null, true)}
+const limits      = {files: 1,fileSize: 1 * 1024 * 1024};// 1MB
+const upload      = multer({storage,fileFilter,limits}).array('avatar',1);
+
+router.post('/avatar',auth,async(req,res,next)=>{
+
+    upload(req,res,(err) => {
+        
+        if (!req.files) return res.status(400).json({msg:'no file uploaded'})
+        
+        if (err)        return res.status(500).json({msg:'upload failed',error:err});
+        
+        const directory = path.join(__dirname,'..','..','avatar')
+        if (!fs.existsSync(directory)) fs.mkdirSync(directory)
+
+        // rename file to user ID
+        // for (file of req.files){
+        //     // console.log(file)
+        //     fs.rename(path.join(__dirname,'..','..','avatar',file.filename),
+        //               path.join(__dirname,'..','..','avatar',req.userinfo.userID+'.svg'), 
+        //               (err) => {
+        //                 if (err) return next({status:400,msg:`error on moving file "${file.filename}"`,error:err})
+        //               }
+        //     )
+        // }
+
+        res.json(req.files);
+    });
 });
 
 module.exports = router;

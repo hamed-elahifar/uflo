@@ -1,5 +1,5 @@
-@Server 		= http://127.0.0.1:3000
-# @Server 		= http://46.101.220.73:3000
+# @Server 		= http://127.0.0.1:3000
+@Server 		= http://api.uflo.io:3000
 @contentType 	= application/json
 # @token			= {{login.response.headers.token}}
 @token          = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySUQiOiIxMTgxMjgyOTU2MjcxMDczMjQwNzIiLCJlbWFpbCI6ImhhbWVkLmVsYWhpZmFyQGdtYWlsLmNvbSIsImZpcnN0bmFtZSI6IkhhbWVkIiwibGFzdG5hbWUiOiJFbGFoaUZhciIsImlhdCI6MTYwNzM2MDI2MiwiZXhwIjoxNjA3OTY1MDYyfQ.A_LCawGAeOmyKu28wbCA0XWgYseH4Y8QoppSkXpQShI
@@ -8,7 +8,7 @@ POST {{Server}}/health
 
 ### Login
 # @name login
-POST {{Server}}/users/login
+POST {{Server}}/auth/google/
 Content-Type: 	{{contentType}}
 
 {

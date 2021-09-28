@@ -82,6 +82,13 @@ const userSchema = new mongoose.Schema({
         enum:           ['Freshman','Sophomore','Junior','Senior']
     },
     major:              [String],
+
+    examType:           String,
+    questionType:       String,
+    theme:              String,
+    mode:               String,
+    textSize:           String,
+    
     academicPerformance:{
         CurrentAcademicPerformance:{
             type:       String,

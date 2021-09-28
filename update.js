@@ -17,7 +17,7 @@ app.get('/:item/:mode?',(req,res)=>{
 
     let {item,mode} = req.params
     if (!mode) mode = 'soft';
-    if (!item) item = 'web'
+    if (!item) return
 
     if (mode == 'soft') {
         exec(`git --git-dir='${data[item].dir}/.git' --work-tree=${data[item].dir} pull` , (err,stdout,stderr) => {
@@ -60,14 +60,3 @@ app.get('/:item/:mode?',(req,res)=>{
 
 const port = 7770
 app.listen(port, () => console.log(`update service is running on ${port}`));
-
-
-
-
-
-
-// test = async ()=>{
-//     return 123
-// }
-
-// console.log(test())

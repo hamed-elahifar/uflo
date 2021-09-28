@@ -73,7 +73,22 @@ process.on("unhandledRejection", ex => {
         ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
 })
 
-Array.prototype.isEmpty = function() {return !!this.length}
+
+if (!Array.prototype.hasOwnProperty('isEmpty')) {
+    Object.defineProperty(Array.prototype,'isEmpty', {
+        get() {
+            return !!this.length
+        }
+    });
+}
+
+if (!Array.prototype.hasOwnProperty('last')) {
+    Object.defineProperty(Array.prototype,'last', {
+        get() {
+            return this[this.length - 1];
+        }
+    });
+}
 
 global.errorLog = (msg,err) => {
 
