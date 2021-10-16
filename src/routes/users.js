@@ -36,7 +36,7 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
                                         .when('role',{'is':'student',then:Joi.string().required(),otherwise:Joi.forbidden()}),
 
         major:              Joi.array().items(Joi.string()).required(),
-        role:               Joi.string().required().valid('student','professor'),
+        role:               Joi.string().required().valid('student','professor','TA','observer','grader'),
         examType:           Joi.string().required().valid('analytical','memorization'),
         questionType:       Joi.string().required().valid('multiple choice','free response'),
         theme:              Joi.string().required().valid('flow','magma','peace','quantum','zen'),

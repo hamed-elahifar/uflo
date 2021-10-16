@@ -39,6 +39,7 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
         title:      Joi.string().required(),
         desc:       Joi.string().required(),
         startDate:  Joi.date()  .optional(),
+        endDate:    Joi.date()  .optional(),
         order:      Joi.number().required(),
         courseID:   Joi.string().required(),
 
@@ -46,12 +47,12 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,startDate,order,courseID} = req.body
+    const {title,desc,startDate,endDate,order,courseID} = req.body
 
     const course = await Course.findOne({courseID})
     if (!course) return next({status:404,msg:'course not found'})
 
-    const chapter = new Chapter({title,desc,startDate,order,courseID})
+    const chapter = new Chapter({title,desc,startDate,endDate,order,courseID})
 
     const [err,result] = await tojs(chapter.save())
 
@@ -69,6 +70,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
             title:      Joi.string().required(),
             desc:       Joi.string().required(),
             startDate:  Joi.date()  .optional(),
+            endDate:    Joi.date()  .optional(),
             order:      Joi.number().required(),
             courseID:   Joi.string().required(),
     
@@ -80,7 +82,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
     let arrayOfErrors = []
 
     for (item of req.body){
-        const {chapterID,title,desc,startDate,order,courseID} = item
+        const {chapterID,title,desc,startDate,endDate,order,courseID} = item
 
         const chapter = await Chapter.findOne({chapterID})
         if (!chapter) return next({msg:'chapter not found'})
@@ -88,6 +90,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
         chapter.title       = title       ? title       : chapter.title
         chapter.desc        = desc        ? desc        : chapter.desc
         chapter.startDate   = startDate   ? startDate   : chapter.startDate
+        chapter.endDate     = endDate     ? endDate     : chapter.endDate
         chapter.order       = order       ? order       : chapter.order
         chapter.courseID    = courseID    ? courseID    : chapter.courseID
     

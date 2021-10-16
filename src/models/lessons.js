@@ -30,10 +30,10 @@ const lessonSchema = new mongoose.Schema({
         type:           Number,
         min:            0
     },
-    startDate:{
-        type:           Date,
-        default:        Date.now
-    },
+    // startDate:{
+    //     type:           Date,
+    //     default:        Date.now
+    // },
 
 },{
     timestamps:          true,

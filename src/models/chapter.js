@@ -27,6 +27,14 @@ const chapterSchema = new mongoose.Schema({
         default:        () => Math.random().toString(35).substr(2,10),
         unique:         true,
     },
+    startDate:{
+        type:           Date,
+        default:        Date.now
+    },
+    endDate:{
+        type:           Date,
+        default:        Date.now
+    },
 
 },{
     timestamps:         true,

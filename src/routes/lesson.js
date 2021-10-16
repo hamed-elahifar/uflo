@@ -37,7 +37,7 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
         desc:               Joi.string().required(),
         chapterID:          Joi.string().required(),
         order:              Joi.number().required(),
-        startDate:          Joi.string().optional().allow(null,''),
+        // startDate:          Joi.string().optional().allow(null,''),
 
         token:              Joi.any().allow(null,'').optional(),
 
@@ -45,7 +45,7 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
     if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
 
-    const {title,desc,chapterID,order,startDate} = req.body
+    const {title,desc,chapterID,order} = req.body
 
     const chapter = await Chapter.findOne({chapterID})
     if (!chapter) return next({status:404,msg:'chapter not found'})
@@ -53,7 +53,7 @@ router.post('/add',[auth,isProfessor],async(req,res,next)=>{
     const course = await Course.findOne({courseID:chapter.courseID})
     if (!course) return next({status:404,msg:'course not found'})
 
-    const lesson = new Lesson({title,desc,chapterID,order,startDate,courseID:course.courseID})
+    const lesson = new Lesson({title,desc,chapterID,order,courseID:course.courseID})
 
     const [err,result] = await tojs(lesson.save())
 
@@ -74,7 +74,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
             desc:               Joi.string().required(),
             chapterID:          Joi.string().required(),
             order:              Joi.number().required(),
-            startDate:          Joi.string().optional().allow(null,''),
+            // startDate:          Joi.string().optional().allow(null,''),
 
             token:              Joi.any().allow(null,'').optional(),
 
@@ -87,7 +87,7 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
 
     for (item of req.body){
 
-        const {lessonID,title,desc,chapterID,order,startDate} = item
+        const {lessonID,title,desc,chapterID,order} = item
     
         const lesson = await Lesson.findOne({lessonID})
         if (!lesson) return next({status:404,msg:'lesson not found'})
@@ -102,7 +102,6 @@ router.post('/update',[auth,isTA],async(req,res,next)=>{
         lesson.desc       = desc      ? desc      : lesson.desc
         lesson.chapterID  = chapterID ? chapterID : lesson.chapterID
         lesson.order      = order     ? order     : lesson.order
-        lesson.startDate  = startDate ? startDate : lesson.startDate
 
         const [err,result] = await tojs(lesson.save())
 
