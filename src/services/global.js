@@ -47,31 +47,8 @@ global.colors = {
         Crimson:    "\x1b[48m",
     }
 };
-process.on("uncaughtException" , ex => {
-    if (JSON.stringify(ex,null,2) == '{}') {
-        console.error(colors.fg.Red,colors.Blink,'uncaughtException => ',colors.Reset)
-        errorLog(ex)
-        return
-    } 
-
-    logger.error('uncaughtException ', ex.message || 
-        ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
-    logger.debug(ex.stack || 
-        ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
-})
-
-process.on("unhandledRejection", ex => {
-    if (JSON.stringify(ex,null,2) == '{}') {
-        console.error(colors.fg.Red,colors.Blink,'unhandledRejection => ',colors.Reset)
-        errorLog(ex)
-        return
-    }
-
-    logger.error('unhandledRejection ',ex.message || 
-        ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
-    logger.debug(ex.stack || 
-        ex instanceof Object ? JSON.stringify(ex,null,2) : ex)
-})
+process.on("uncaughtException" , ex => errorLog(ex))
+process.on("unhandledRejection", ex => errorLog(ex))
 
 
 if (!Array.prototype.hasOwnProperty('isEmpty')) {

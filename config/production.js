@@ -41,8 +41,10 @@ module.exports = {
         }
     },
     "google":{
-        "clientID":                 '921834319384-jngst934g85p8s34br53q9r67s5revge.apps.googleusercontent.com',
-        "clientSecret":             'tzWDwBWdK3_XMo30vF-8Mt4w',
+        // "clientID":                 '921834319384-jngst934g85p8s34br53q9r67s5revge.apps.googleusercontent.com',
+        // "clientSecret":             'tzWDwBWdK3_XMo30vF-8Mt4w',
+        "clientID":                 '859508223645-cbbn56jvt5tmrkohlfdlfna5bklbnnkm.apps.googleusercontent.com',
+        "clientSecret":             '4wELHtwGm2Ybr6PEKSXYteCN',
         "callbackURL":              'http://api.uflo.io:3000/auth/google/callback',
         "successRedirect":          'http://api.uflo.io:3000',
         "failureRedirect":          'http://api.uflo.io:3000',
