@@ -5,3 +5,13 @@ docker run -d \
 -e PGDATA=/pgdata \
 -v /pgdata:/pgdata \
 postgres
+
+
+
+  - Course
+    - chapter
+      - lesson
+        - lobj
+          - canvas
+          - frame
+

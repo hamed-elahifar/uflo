@@ -5,7 +5,7 @@ const router            = require('express').Router()
   ,   {Lobj}            = require('../models/lobj')
   ,   {Frame}           = require('../models/frames')
 
-  ,   Joi               = require('@hapi/joi')
+  ,   Joi               = require('joi')
   ,   multer            = require('multer')
   ,   path              = require('path')
   ,   fs                = require('fs')
@@ -166,6 +166,7 @@ router.post('/delete',[auth,isTA],async(req,res,next)=>{
     res.payload = {msg:'successful'}
     return next()
 });
+
 
 const storage = multer.diskStorage({
     destination:    (req,file,cb)=>{cb(null,'upload')},

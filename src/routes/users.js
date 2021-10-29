@@ -2,7 +2,7 @@ const router                    = require('express').Router()
   ,   {User}                    = require('../models/users')
   ,   {Course}                  = require('../models/courses')
 
-  ,   Joi                       = require('@hapi/joi')
+  ,   Joi                       = require('joi')
   ,   multer                    = require('multer')
   ,   path                      = require('path')
   ,   fs                        = require('fs')
@@ -106,6 +106,9 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
 router.post('/list',[auth,sysAdmin],async(req,res,next)=>{
     res.payload = await User.find();
     return next();
+})
+router.post('/light-list',[auth,sysAdmin],async(req,res,next)=>{
+    
 })
 router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({

@@ -67,6 +67,15 @@ if (!Array.prototype.hasOwnProperty('last')) {
     });
 }
 
+// if (!Object.prototype.hasOwnProperty('clone')) {
+//     Object.defineProperty(Object.prototype, 'clone', {
+//         value: function() {
+//             return JSON.parse(JSON.stringify(this))
+//         }
+//     });
+// }
+
+
 global.errorLog = (msg,err) => {
 
     // console.log('msg',msg)

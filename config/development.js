@@ -2,6 +2,7 @@ console.log('Development config loaded...')
 
 module.exports = {
     "PORT":                     3000,
+    "PORTs":                    8443,
     "welcomeMessage":           "uflo [DEV] running on port",
     "mongoDB":{
         "connectionString":     "mongodb://localhost/uflo",

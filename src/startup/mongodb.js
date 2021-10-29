@@ -3,11 +3,7 @@ const mongoose  = require('mongoose').Mongoose
 
 const options   = {
     useNewUrlParser:      true,
-    useCreateIndex:       true,
-    useFindAndModify:     false,
     // autoIndex:          false,            // Don't build indexes
-    poolSize:             10,
-    bufferMaxEntries:     0,
     connectTimeoutMS:     5000,
     family:               4,
     useUnifiedTopology:   true,

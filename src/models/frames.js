@@ -7,7 +7,7 @@ const frameSchema  = new mongoose.Schema({
     frameID:{
         type:           Number,
         // default:        () => Math.random().toString(35).substr(2,10),
-        unique:         true,
+        // unique:         true,
     },
     frameType:{
         type:           String,
@@ -44,6 +44,24 @@ const frameSchema  = new mongoose.Schema({
     timestamps:          true,
     toJSON:              {virtuals:true},
 });
+
+// frameSchema.index({frameID:1},{unique:true,background:true});
+
+frameSchema.methods.duplicate = async function (lobjID) {
+
+    let that = JSON.parse(JSON.stringify(this))
+
+    delete that.id
+    delete that._id
+    delete that.__v
+    delete that.createdAt
+    delete that.updatedAt
+
+    that.lobjID = lobjID
+
+    return await Frame.create(that)
+    
+}
 
 frameSchema.virtual('course',{
     ref:           'courses',

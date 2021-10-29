@@ -52,6 +52,8 @@ const stateSchema = new mongoose.Schema({
     toJSON:              {virtuals:true},
 });
 
+stateSchema.index({stateID:1},{unique:true,background:true});
+
 stateSchema.virtual('canvas',{
     ref:            'canvas',
     localField:     'canvasIDs',

@@ -5,7 +5,7 @@ const router                    = require('express').Router()
 
   ,  {sysAdmin,isProfessor,isTA}
                                 = require('../middleware/sysRoles')
-  ,   Joi                       = require('@hapi/joi')
+  ,   Joi                       = require('joi')
 
   ,   auth                      = require('../middleware/auth')
 

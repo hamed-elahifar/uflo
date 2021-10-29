@@ -4,7 +4,7 @@ const router                    = require('express').Router()
   ,   {Course}                  = require('../models/courses')
   ,   {Lesson}                  = require('../models/lessons')
 
-  ,   Joi                       = require('@hapi/joi')
+  ,   Joi                       = require('joi')
 
   ,  {sysAdmin,isProfessor,isTA}
                                 = require('../middleware/sysRoles')
@@ -149,4 +149,35 @@ router.post('/full',[auth],async(req,res,next)=>{
     
     return next();
 });
+router.post('/duplicate',[auth,isProfessor],async(req,res,next)=>{
+    
+    const schema  = Joi.object({
+
+        courseID:           Joi.string().required(),
+        chapterID:          Joi.string().required(),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {chapterID,courseID} = req.body
+
+    const chapter = await Chapter.findOne({chapterID})
+    if (!chapter) return next({status:404,msg:'chapter not found'})
+
+    if (chapter.courseID == courseID)
+        return next({status:400,msg:'courseID is the same as before'})
+
+    const course = await Course.findOne({courseID})
+    if (!course) return next({status:404,msg:'course not found'})
+
+    const [err,result] = await tojs(chapter.duplicate(courseID))
+
+    if (err) errorLog(err)
+
+    res.payload = result
+    return next();
+
+});
+
 module.exports = router;

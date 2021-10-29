@@ -7,7 +7,7 @@ const router            = require('express').Router()
   ,   {Canvas}          = require('../models/canvas')
   ,   {State}           = require('../models/state')
 
-  ,   Joi               = require('@hapi/joi')
+  ,   Joi               = require('joi')
 
   ,  {sysAdmin,isProfessor,isTA}
                         = require('../middleware/sysRoles')
@@ -219,4 +219,35 @@ router.post('/complete',[auth],async(req,res,next)=>{
     
     return next();
 });
+router.post('/duplicate',[auth,isProfessor],async(req,res,next)=>{
+    const schema  = Joi.object({
+
+        lessonID:           Joi.string().required(),
+        lobjID:             Joi.string().required(),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {lobjID,lessonID} = req.body
+
+    const lobj = await Lobj.findOne({lobjID})
+    if (!lobj) return next({status:404,msg:'lobj not found'})
+
+    if (lobj.lessonID == lessonID)
+        return next({status:400,msg:'lessonID is the same as before'})
+    
+    const lesson = await Lesson.findOne({lessonID})
+    if (!lesson) return next({status:404,msg:'lesson not found'})
+    
+    const [err,result] = await tojs(lobj.duplicate(lessonID))
+
+    if (err) errorLog(err)
+
+    res.payload = result
+    return next();
+
+});
+
+
 module.exports = router;

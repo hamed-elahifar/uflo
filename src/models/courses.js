@@ -45,6 +45,8 @@ const courseSchema = new mongoose.Schema({
     toJSON:             {virtuals:true},
 });
 
+courseSchema.index({courseID:1},{unique:true,background:true});
+
 courseSchema.virtual('professor',{
     ref:             'users',
     localField:      'professorID',

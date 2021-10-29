@@ -2,6 +2,7 @@ const mongoose     = require('mongoose')
 const {mongoDB}    = require('../startup/mongodb')
 
   ,   {Frame}      = require('../models/frames')
+  ,   {Canvas}     = require('../models/canvas')
 
 
 const lobjSchema = new mongoose.Schema({
@@ -46,6 +47,39 @@ const lobjSchema = new mongoose.Schema({
     timestamps:          true,
     toJSON:              {virtuals:true},
 });
+
+lobjSchema.index({lobjID:1},{unique:true,background:true});
+
+lobjSchema.methods.duplicate = async function (lessonID) {
+
+    let that = JSON.parse(JSON.stringify(this))
+
+    delete that.id
+    delete that._id
+    delete that.__v
+    delete that.createdAt
+    delete that.updatedAt
+    delete that.lobjID
+
+    that.lessonID = lessonID
+    
+    const [err,result] = await tojs(Lobj.create(that))
+
+    if (err) return errorLog(err)
+
+    const canvas = await Canvas.find({lobjID:this.lobjID})
+    for (item of canvas){
+        await item.duplicate(result.lobjID)
+    }
+
+    const frames = await Frame.find({lobjID:this.lobjID})
+    for (item of frames){
+        await item.duplicate(result.lobjID)
+    }
+
+    return result
+    
+}
 
 lobjSchema.virtual('course',{
     ref:           'courses',

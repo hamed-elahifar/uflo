@@ -42,6 +42,35 @@ const chapterSchema = new mongoose.Schema({
     toJSON:             {virtuals:true},
 });
 
+chapterSchema.index({chapterID:1},{unique:true,background:true});
+
+chapterSchema.methods.duplicate = async function (courseID) {
+
+    let that = JSON.parse(JSON.stringify(this))
+
+    delete that.id
+    delete that._id
+    delete that.__v
+    delete that.createdAt
+    delete that.updatedAt
+    delete that.chapterID
+
+    that.courseID = courseID
+    
+    const [err,result] = await tojs(Chapter.create(that))
+
+    if (err) return errorLog(err)
+
+    const lesson = await Lesson.find({chapterID:this.chapterID})
+    for (item of lesson){
+        await item.duplicate(result.chapterID)
+    }
+
+    return result
+    
+}
+
+
 chapterSchema.virtual('course',{
     ref:             'courses',
     localField:      'courseID',

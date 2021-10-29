@@ -3,7 +3,7 @@ const router            = require('express').Router()
   ,   {Course}          = require('../models/courses')
   ,   {Lesson}          = require('../models/lessons')
 
-  ,   Joi               = require('@hapi/joi')
+  ,   Joi               = require('joi')
 
   ,  {sysAdmin,isProfessor,isTA}
                         = require('../middleware/sysRoles')
@@ -131,6 +131,36 @@ router.post('/delete',[auth,isProfessor],async(req,res,next)=>{
 
     res.payload = 'lesson deleted successfully'
     return next()
+});
+router.post('/duplicate',[auth,isProfessor],async(req,res,next)=>{
+    
+    const schema  = Joi.object({
+
+        chapterID:          Joi.string().required(),
+        lessonID:           Joi.string().required(),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {chapterID,lessonID} = req.body
+
+    const lesson = await Lesson.findOne({lessonID})
+    if (!lesson) return next({status:404,msg:'lesson not found'})
+
+    if (lesson.chapterID == chapterID)
+        return next({status:400,msg:'chapterID is the same as before'})
+
+    const chapter = await Chapter.findOne({chapterID})
+    if (!chapter) return next({status:404,msg:'chapter not found'})
+
+    const [err,result] = await tojs(lesson.duplicate(chapterID))
+
+    if (err) errorLog(err)
+
+    res.payload = result
+    return next();
+
 });
 
 // @TODO

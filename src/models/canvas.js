@@ -24,6 +24,25 @@ const canvasSchema  = new mongoose.Schema({
     toJSON:              {virtuals:true},
 });
 
+canvasSchema.index({canvasID:1},{unique:true,background:true});
+
+canvasSchema.methods.duplicate = async function (lobjID) {
+
+    let that = JSON.parse(JSON.stringify(this))
+
+    delete that.id
+    delete that._id
+    delete that.__v
+    delete that.createdAt
+    delete that.updatedAt
+    delete that.canvasID
+
+    that.lobjID = lobjID
+    
+    return await Canvas.create(that)
+    
+}
+
 canvasSchema.virtual('lobj',{
     ref:             'lobjs',
     localField:      'lobjID',

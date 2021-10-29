@@ -1,6 +1,6 @@
 const router                    = require('express').Router()
   ,   {Flomotion}               = require('../models/flomotion')
-  ,   Joi                       = require('@hapi/joi')
+  ,   Joi                       = require('joi')
 
   ,  {sysAdmin,isProfessor,isTA}
                                 = require('../middleware/sysRoles')

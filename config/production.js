@@ -1,7 +1,8 @@
 console.log('Production config loaded...')
 
 module.exports = {
-    "PORT":                     3000,
+    "PORT":                     80,
+    "PORTs":                    443,
     "welcomeMessage":           "uflo [DEV] running on port",
     "mongoDB":{
         "connectionString":     "mongodb://localhost/uflo",

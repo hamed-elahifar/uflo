@@ -2,7 +2,7 @@ const router         = require('express').Router()
   ,   {User}         = require('../models/users')
   ,   {Course}       = require('../models/courses')
 
-  ,   Joi            = require('@hapi/joi')
+  ,   Joi            = require('joi')
   ,   multer         = require('multer')
   ,   path           = require('path')
   ,   fs             = require('fs')

@@ -2,7 +2,7 @@ const router            = require('express').Router()
   ,   {Annotation}      = require('../models/annotations')
   ,   {Lesson}          = require('../models/lessons')
 
-  ,   Joi               = require('@hapi/joi')
+  ,   Joi               = require('joi')
 
   ,  {sysAdmin,isProfessor,isTA}
                         = require('../middleware/sysRoles')
