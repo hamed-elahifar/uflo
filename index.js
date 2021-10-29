@@ -8,7 +8,6 @@ const {readFileSync}    = require('fs');
 const {join}            = require('path')
 const http              = require('http');
 const https             = require('https');
-const { loggers } = require('winston');
 
 console.info(
 colors.bg.Green,

@@ -123,7 +123,7 @@ const userSchema = new mongoose.Schema({
     },
     theme:{
         type:           String,
-        enum:           ['Dark','Light']
+        // enum:           ['Dark','Light']
     }
 
 },{

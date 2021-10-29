@@ -97,7 +97,9 @@ router.post('/edit-myinfo',[auth],async(req,res,next)=>{
     user.enrolledStudent        = enrolledStudent
     user.classroom              = classroom
 
-    let [Err,result] = await tojs(user.save())
+    let [err2,result] = await tojs(user.save())
+
+    if (err2) errorLog(err)
 
     res.payload = result;
 
