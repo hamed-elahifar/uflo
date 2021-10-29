@@ -109,8 +109,29 @@ router.post('/list',[auth,sysAdmin],async(req,res,next)=>{
     res.payload = await User.find();
     return next();
 })
-router.post('/light-list',[auth,sysAdmin],async(req,res,next)=>{
-    
+router.post('/light-list',[auth],async(req,res,next)=>{
+
+    const schema  = Joi.object({
+
+        courseID:   Joi.string().required().allow('',null),
+
+    })
+    const {error:joiErr} = schema.validate(req.body,{abortEarly:false});
+    if (joiErr) return next({status:400,msg:joiErr.details.map(x=>x.message)});
+
+    const {courseID} = req.body
+
+    // @TODO
+    // check if user registerd in this course
+
+    const [err,users] = await tojs(User.find({courseIDs:courseID}).select('-_id firstname lastname').lean())
+
+    if (err) errorLog(err)
+
+    res.payload = users
+
+    return next();
+
 })
 router.post('/add',[auth,sysAdmin],async(req,res,next)=>{
     const schema  = Joi.object({
