@@ -8,6 +8,7 @@ const {readFileSync}    = require('fs');
 const {join}            = require('path')
 const http              = require('http');
 const https             = require('https');
+const { loggers } = require('winston');
 
 console.info(
 colors.bg.Green,
@@ -32,8 +33,8 @@ const httpsServer       = https.createServer({key,cert},app);
 const port              = process.env.PORT  || getConfig('PORT')  || 80;
 const ports             = process.env.PORTs || getConfig('PORTs') || 443;
 
-httpServer .listen(port ,() => console.log(`${Date().toString()} | HTTP  port ${port} | PID: ${process.pid} | `));
-httpsServer.listen(ports,() => console.log(`${Date().toString()} | HTTPs port ${ports} | PID: ${process.pid} | `));
+httpServer .listen(port ,() => logger.info(`${Date().toString()} | HTTP  port ${port} | PID: ${process.pid} | `));
+httpsServer.listen(ports,() => logger.info(`${Date().toString()} | HTTPs port ${ports} | PID: ${process.pid} | `));
 
 
 // module.exports = server;

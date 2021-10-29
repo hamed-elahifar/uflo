@@ -118,7 +118,7 @@ module.exports = function (app) {
     app.use('/state',       require('../routes/state'))
     // app.use('/annotation',  require('../routes/annotations'))
     app.use('/flomotion',   require('../routes/flomotion'))
-    app.use('/analytics',   require('../routes/analytics'))
+    // app.use('/analytics',   require('../routes/analytics'))
     
     app.use('*',            require('../middleware/response'))
     app.use(                require('../middleware/error'))
