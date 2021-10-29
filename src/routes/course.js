@@ -302,9 +302,8 @@ router.post('/upload/:courseID',[auth,isTA],async(req,res)=>{
 
     upload(req,res,(err) => {
 
-        if (!req.files) return res.status(500).json({msg:'no file uploaded'})
-        
-        if (err)        return res.status(500).json({msg:'upload failed',error:err});
+        if (!req.files) return next({status:400,msg:'no file uploaded'});
+        if (err)        return next({status:400,msg:'upload failed',error:err});
         
         const directory = path.join(__dirname,'..','upload',req.params.courseID)
         if (!fs.existsSync(directory)){fs.mkdirSync(directory)}
